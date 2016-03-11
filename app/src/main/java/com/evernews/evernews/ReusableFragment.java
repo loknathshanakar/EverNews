@@ -50,7 +50,6 @@ public class ReusableFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    List<ItemObject> adapterToSet;
     List <ItemObject> itemCollection=new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,7 +69,7 @@ public class ReusableFragment extends Fragment {
         CustomAdapter customAdapter = new CustomAdapter(getActivity(), itemCollection);
         gridView.setAdapter(customAdapter);
         gridView.setSelection(postionToMaintain);
-
+        Toast.makeText(getContext()," "+ getArguments().getInt(TYPE_KEY), Toast.LENGTH_SHORT).show();
         /*btn=(Button)rootView.findViewById(R.id.loadmore);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,6 +258,7 @@ public class ReusableFragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem + visibleItemCount >= totalItemCount) {
+                    int i=getArguments().getInt(TYPE_KEY);
                     fab.setVisibility(View.VISIBLE);
                     fab.setOnClickListener(new View.OnClickListener() {
                         @Override
