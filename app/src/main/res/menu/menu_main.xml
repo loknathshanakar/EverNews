@@ -1,0 +1,29 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.evernews.evernews.Main">
+
+
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_autorenew_black_24dp"
+        android:title="Settings"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="Search"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/ic_add_circle_outline_black_24dp"
+        android:title="AddTab"
+        app:showAsAction="always"/>
+
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_reorder_black_24dp"
+        android:title="Refresh News"
+        app:showAsAction="always"/>
+</menu>

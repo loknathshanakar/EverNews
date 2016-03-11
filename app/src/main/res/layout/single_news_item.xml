@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp"
+    android:foreground="?attr/selectableItemBackground">
+
+   <!-- <com.evernews.evernews.SquareImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.evernews.evernews.SquareImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            android:src="@drawable/news" />
+
+        <!-- android:scaleType="fitXY"-->
+
+        <TextView
+            android:id="@+id/source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10sp"
+            android:textColor="#900000"
+            android:lines="1"
+            />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10sp"
+            android:textStyle="italic"
+            android:textColor="#000000"
+            android:lines="3" />
+
+    </LinearLayout>
+
+    <!--News Flag-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top|right">
+
+        <ImageView
+            android:id="@+id/flag"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_margin="2dp"
+            android:background="@android:color/transparent" />
+    </RelativeLayout>
+</FrameLayout>

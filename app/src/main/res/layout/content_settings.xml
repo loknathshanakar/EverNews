@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.evernews.evernews.Settings"
+    tools:showIn="@layout/activity_settings">
+    <ScrollView
+        android:id="@+id/textAreaScroller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <TextView
+                android:id="@+id/newsHead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:text="News"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="2dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsChannel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Add News Channel"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsNotify"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Push Notification Setting"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsFont"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Article Font Size"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+
+            <TextView
+                android:id="@+id/newsGen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:text="General"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="2dp"
+                android:background="@color/accent" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/newsTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10sp"
+                    android:paddingLeft="20sp"
+                    android:textSize="15sp"
+                    android:text="Theme : "/>
+                <TextView
+                    android:id="@+id/themeType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10sp"
+                    android:paddingLeft="20sp"
+                    android:textSize="15sp"
+                    android:text="Day Mode"/>
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+
+            <TextView
+                android:id="@+id/newsExternal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:text="External Services"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="2dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsTwit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Twitter"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsFb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Facebook"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+
+            <TextView
+                android:id="@+id/newsAbout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:text="About"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="2dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsSupport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Support"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsReview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Write a review"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsRecomend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Recomend to your friend"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsPolicy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Privacy Policy"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsTerms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Terms"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsCredits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Credits"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <TextView
+                android:id="@+id/newsWeb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:paddingLeft="20sp"
+                android:textSize="15sp"
+                android:text="Visit web site"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/newsVersion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10sp"
+                    android:paddingLeft="20sp"
+                    android:textSize="15sp"
+                    android:text="Version"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10sp"
+                    android:paddingLeft="20sp"
+                    android:textSize="15sp"
+                    android:text="1.1"/>
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+    </ScrollView>
+</RelativeLayout>

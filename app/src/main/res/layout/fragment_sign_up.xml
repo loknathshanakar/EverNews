@@ -1,0 +1,117 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.evernews.evernews.SignUp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/top"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        >
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/userName"
+            android:hint="Your Name "
+            android:layout_margin="5dp" />
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:ems="10"
+            android:id="@+id/password"
+            android:hint="Password (Min 8 char) "
+            android:layout_margin="5dp"
+            android:autoLink="phone" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:ems="10"
+            android:id="@+id/comfirmpassword"
+            android:hint="Retype password here"
+            android:layout_margin="5dp"
+            android:autoLink="phone" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:ems="10"
+            android:id="@+id/userEmail"
+            android:hint="Email Address "
+            android:layout_margin="5dp"
+            android:autoLink="email" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:ems="10"
+            android:id="@+id/userNumber"
+            android:hint="Phone Number"
+            android:layout_margin="5dp"
+            android:autoLink="phone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_below="@+id/top"
+        android:layout_marginTop="35dp"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/linearLayout2">
+        <Button
+            android:layout_width="95sp"
+            android:layout_height="40sp"
+            android:textColor="#ffffff"
+            android:text="Register"
+            android:background="@drawable/btn_bg"
+            android:id="@+id/signup" />
+
+        <!--android:textAllCaps="false"-->
+
+        <Button
+            android:layout_width="75sp"
+            android:layout_height="40sp"
+            android:textColor="#ffffff"
+            android:layout_marginLeft="10sp"
+            android:text="Login"
+            android:background="@drawable/btn_bg"
+            android:id="@+id/noAction"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="40sp"
+        android:text="Register via Facebook"
+        android:id="@+id/facebook"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_gravity="center_horizontal"
+        android:background="#3b5998"
+        android:layout_margin="15dp"
+        android:textColor="#ffffffff" />
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="40sp"
+        android:text="Register via Google"
+        android:id="@+id/google"
+        android:layout_gravity="center_horizontal"
+        android:background="#55ACEE"
+        android:textColor="#ffffffff"
+        android:layout_margin="15dp"
+        android:layout_below="@+id/facebook" />
+</RelativeLayout>

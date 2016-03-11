@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">EverNews</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="app_with_version">EverNews v2.0</string>
+    <string name="title_activity_view_news">ViewNews</string>
+    <string name="share_using">Share Using</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_add_tab">AddTab</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_view_message">ViewMessage</string>
+    <string name="facebook_app_id">472142769657290</string>
+</resources>
