@@ -38,13 +38,14 @@
             android:lines="1"
             />
 
-        <TextView
+        <com.evernews.evernews.MyCustonTextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10sp"
-            android:textStyle="italic"
-            android:textColor="#000000"
+            android:textStyle="normal"
+            android:text="Some text"
+            android:textColor="#085FB4"
             android:lines="3" />
 
     </LinearLayout>

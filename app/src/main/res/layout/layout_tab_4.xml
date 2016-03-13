@@ -9,7 +9,7 @@
         android:layout_height="50dp"
         android:background="@drawable/tab_color4"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:text="Teext"
         android:enabled="false"

@@ -18,7 +18,9 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,6 +95,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
     Button fbSignup ; //= (Button) getActivity().findViewById(R.id.facebook);
     Button gSignup; // = (Button) getActivity().findViewById(R.id.google);
     Button twittersignup;
+    Spinner mSpinner;
     Pattern emailPattern;
     Account[] accounts;
     public static SignUp newInstance(String param1) {
@@ -203,6 +206,14 @@ public class SignUp extends Fragment implements View.OnClickListener{
         twittersignup.setOnClickListener(this);
         fbSignup = (Button) view.findViewById(R.id.facebook_normal);
         fbSignup.setOnClickListener(this);
+        mSpinner = (Spinner) view.findViewById(R.id.spinner);
+
+        //Fill spinner
+        String[] arraySpinner=new String[] {
+                "Select your city", "Delhi", "Mumbai", "Bangalore", "One more city"
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, arraySpinner);
+        mSpinner.setAdapter(adapter);
         return view;
     }
 
@@ -221,6 +232,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                     boolean validNumber = isValidNumber(pnumbers);
                     boolean validUsername = isValidName(userNames);
                     boolean validPassword = isValidPassword(passWord);
+                    int validSpinner=mSpinner.getSelectedItemPosition();
                     if (validUsername == false)
                         errorString = errorString + ">Invalid Username (6 Char min)\r\n";
                     if (validEmail == false)
@@ -231,7 +243,10 @@ public class SignUp extends Fragment implements View.OnClickListener{
                         errorString = errorString + ">Invalid Password\r\n";
                     if(passWord.compareTo(confirmpassWord)!=0){
                         validPassword=false;
-                        errorString = errorString + ">Passwords do not match!";
+                        errorString = errorString + ">Passwords do not match!\r\n";
+                    }
+                    if(validSpinner<=0){
+                        errorString = errorString + ">City not selected\r\n";
                     }
                     if (validEmail == true && validNumber == true && validUsername == true && validPassword == true) {
                         //Post details to server

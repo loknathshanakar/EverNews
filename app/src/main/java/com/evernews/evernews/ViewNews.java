@@ -26,6 +26,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,6 +82,7 @@ public class ViewNews extends AppCompatActivity {
     static String newsID="";
     static String newsLink="";
     static String newsTitle="";
+    static String caller="";
     static String finalHtml2 = "";
     public static FloatingActionButton fab_new;
     private final static float SCROLL_THRESHOLD = 10;
@@ -94,6 +96,18 @@ public class ViewNews extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && caller.compareTo("SEARCH")==0) {
+            finish();
+        }
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && caller.compareTo("MAIN")==0) {
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +115,10 @@ public class ViewNews extends AppCompatActivity {
         context=this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_view_news);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.logo);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
+        getSupportActionBar().setTitle("");
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -136,13 +153,11 @@ public class ViewNews extends AppCompatActivity {
             }
         }
 
-        getSupportActionBar().setLogo(R.drawable.logo);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
-        getSupportActionBar().setTitle("");
         Intent intent = getIntent();
         newsID = intent.getStringExtra("NEWS_ID")+"";
         newsLink = intent.getStringExtra("NEWS_LINK")+"";
         newsTitle = intent.getStringExtra("NEWS_TITLE")+"";
+        caller=intent.getStringExtra("CALLER");
         fab_new = (FloatingActionButton) findViewById(R.id.fab_view_news);
         fab_new.setVisibility(View.GONE);
         FacebookSdk.sdkInitialize(getApplicationContext());
@@ -368,8 +383,13 @@ public class ViewNews extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == android.R.id.home) {
+            if (caller.compareTo("SEARCH")==0) {
+                finish();
+            }
+            if (caller.compareTo("MAIN")==0) {
+                finish();
+            }
         }
 
         return super.onOptionsItemSelected(item);

@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/generic_margin"
             android:text="News Channel"
-            android:textColor="@color/blackish"
+            android:textColor="#085FB4"
             android:textSize="14sp" />
 
         <GridView xmlns:android="http://schemas.android.com/apk/res/android"

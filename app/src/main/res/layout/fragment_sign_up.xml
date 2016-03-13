@@ -55,6 +55,14 @@
             android:layout_margin="5dp"
             android:autoLink="email" />
 
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:id="@+id/spinner"
+            android:layout_gravity="center_horizontal"
+            android:spinnerMode="dropdown" />
+
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

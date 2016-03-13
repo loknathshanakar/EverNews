@@ -202,8 +202,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 return true;
 
             case R.id.action_search:
-                // User chose the "Favorite" action, mark the current item
-                // as a favorite...
+                Intent intent=new Intent(Main.this,Search.class);
+                startActivity(intent);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

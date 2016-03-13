@@ -87,10 +87,25 @@ public class AddTabNewsPreview extends DialogFragment {
                     String result = returnContent.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
                     GridView gridView = (GridView)add.findViewById(R.id.gridview_add);
                     List <ItemObject> tempItems = parseResults(result);
+                    if(tempItems.size()>0){
                     CustomAdapter customAdapter = new CustomAdapter(getActivity(), tempItems);
                     gridView.setAdapter(customAdapter);
                     channelName.setText(tempItems.get(0).getnewsName());
                     channelMeta.setText(channelDetails);
+                    }
+                    else{
+                        List<ItemObject> items = new ArrayList<>();
+                        String NewsImage = "No news avaliable";
+                        String NewsTitle ="No news avaliable";
+                        String RSSTitle = "No news avaliable";
+                        String NewsId = "No news avaliable";
+                        String CATID = "No news avaliable";
+                        channelName.setText("Not avaliable");
+                        channelMeta.setText("Not avaliable");
+                        items.add(new ItemObject(NewsImage, NewsTitle, RSSTitle, NewsId, CATID));
+                        CustomAdapter customAdapter = new CustomAdapter(getActivity(), items);
+                        gridView.setAdapter(customAdapter);
+                    }
                     prog.setVisibility(View.INVISIBLE);
                 }else {
                     Toast.makeText(getContext(),"An error occured while fetching the news...",Toast.LENGTH_LONG).show();
@@ -186,7 +201,7 @@ public class AddTabNewsPreview extends DialogFragment {
     public List<ItemObject> parseResultsEmpty()
     {
         List<ItemObject> items = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 1; i++) {
             String NewsImage = "Updating";
             String NewsTitle ="Updating";
             String RSSTitle = "Updating";

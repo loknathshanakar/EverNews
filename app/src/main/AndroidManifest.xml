@@ -24,7 +24,8 @@
         <activity
             android:name=".Main"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Initilization">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -91,6 +92,20 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.evernews.evernews.AddTab" />
+        </activity>
+        <activity
+            android:name=".Search"
+            android:label="@string/title_activity_search"
+            android:windowSoftInputMode="stateHidden"
+            android:parentActivityName=".Main"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.evernews.evernews.Main"
+                android:resource="@xml/search_config"/>
         </activity>
     </application>
 

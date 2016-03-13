@@ -90,6 +90,7 @@ public class ReusableFragment extends Fragment {
                     i.putExtra("NEWS_ID", newsID);
                 i.putExtra("NEWS_LINK", "EMPTY");
                 i.putExtra("NEWS_TITLE", "EMPTY");
+                i.putExtra("CALLER","MAIN");
                 new AsyncTask<Void, Void, String>() {
                     String newsLink="";
                     String source="",title="",news="";
@@ -300,7 +301,7 @@ public class ReusableFragment extends Fragment {
                     if (tabName.compareTo(Initilization.resultArray[j][Initilization.Category]) == 0) {
                         String par1 = Initilization.resultArray[j][Initilization.NewsImage];
                         String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
-                        String par3 = Initilization.resultArray[j][Initilization.Category];
+                        String par3 = Initilization.resultArray[j][Initilization.RSSTitle];
                         String par4 = Initilization.resultArray[j][Initilization.NewsId];
                         String par5 = Initilization.resultArray[j][Initilization.CategoryId];
                         items.add(new ItemObject(par1, par2, par3, par4, par5));
@@ -331,7 +332,7 @@ public class ReusableFragment extends Fragment {
                 if((categoryId-1)==i) {
                     String par1 = Initilization.resultArray[j][Initilization.NewsImage];
                     String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
-                    String par3 = Initilization.resultArray[j][Initilization.Category];
+                    String par3 = Initilization.resultArray[j][Initilization.RSSTitle];     //RSSTitle
                     String par4 = Initilization.resultArray[j][Initilization.NewsId];
                     String par5 = Initilization.resultArray[j][Initilization.RSSURL];
                     items.add(new ItemObject(par1, par2, par3, par4,par5));
@@ -362,7 +363,7 @@ public class ReusableFragment extends Fragment {
                 Element e = (Element) nodeList.item(i);
                 String par1 = (parser.getValue(e, "NewsImage"));
                 String par2 = (parser.getValue(e, "NewsTitle"));
-                String par3 = (parser.getValue(e, "Category"));
+                String par3 = (parser.getValue(e, "RSSTitle"));
                 String par4 = (parser.getValue(e, "NewsId"));
                 String par5 = (parser.getValue(e, "CategoryId"));
                 asyncitems.add(new ItemObject(par1, par2, par3, par4,par5));

@@ -12,4 +12,5 @@
     <string name="title_activity_view_message">ViewMessage</string>
     <string name="facebook_app_id">472142769657290</string>
     <string name="title_activity_add_tab_news_preview">AddTabNewsPreview</string>
+    <string name="title_activity_search">Search</string>
 </resources>
