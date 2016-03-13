@@ -13,6 +13,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 public class CustomAdapter extends BaseAdapter {
@@ -90,7 +95,7 @@ public class CustomAdapter extends BaseAdapter {
                     }
                 });*/
 
-        Glide.with(context).load(listStorage.get(position).getNewsImage()).placeholder(R.mipmap.news).crossFade().fitCenter().into(listViewHolder.thumbnail);
+        Glide.with(context).load(listStorage.get(position).getNewsImage()).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.mipmap.news).error(R.mipmap.news).crossFade().into(listViewHolder.thumbnail);
         listViewHolder.source.setText(listStorage.get(position).getnewsName());
         listViewHolder.title.setText(listStorage.get(position).getnewsTitle());
         return convertView;

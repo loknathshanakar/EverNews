@@ -11,15 +11,20 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +32,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +40,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +62,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -70,7 +79,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
+    public static String catListArray[][]=new String[10000][7];
+    public static boolean validCategory=false;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -86,6 +96,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     public static String USERPHONENUMBER="USERPHONENUMBER";
     public static String ISREGISTRED="ISREGISTRED";
     public static String LOGGEDIN="LOGGEDIN";
+    Context context;
     public void onFragmentInteraction(Uri uri){
         //you can leave it empty
     }
@@ -99,24 +110,78 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        getSupportActionBar().setLogo(R.drawable.logo);
+        getSupportActionBar().setTitle("");
+        context=this;
 
+        progress=(ProgressBar)findViewById(R.id.progress);
+        progress.setVisibility(View.GONE);
+        if(validCategory==false)
+            new GetCategoryList().execute();
+        sharedpreferences = getSharedPreferences(USERLOGINDETAILS, Context.MODE_PRIVATE);
 
         //tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         //mViewPager.setOffscreenPageLimit(1);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        TabLayout tabLayout= (TabLayout)findViewById(R.id.tabs);
+
+        final TabLayout tabLayout= (TabLayout)findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        getSupportActionBar().setLogo(R.drawable.logo);
-        getSupportActionBar().setTitle("");
-
-
-        progress=(ProgressBar)findViewById(R.id.progress);
-        progress.setVisibility(View.GONE);
-
-        sharedpreferences = getSharedPreferences(USERLOGINDETAILS, Context.MODE_PRIVATE);
+        for (int i = 0; i < Initilization.addOnList.size(); i++) {
+            int position=i;
+            if(i==0 || i==5 || i==10 ||i==15 || i==20 || i==25) {
+                View v = View.inflate(context, R.layout.layout_tab_1, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_1);
+                tvt.setText(Initilization.addOnList.get(position));
+                tvt.setGravity(Gravity.CENTER);
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color1);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if(i==1 || i==6 || i==11 ||i==16 || i==21 || i==26) {
+                View v = View.inflate(context, R.layout.layout_tab_2, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
+                tvt.setText(Initilization.addOnList.get(position));
+                tvt.setGravity(Gravity.CENTER);
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if(i==2 || i==7 || i==12 ||i==17 || i==22 || i==27) {
+                View v = View.inflate(context, R.layout.layout_tab_3, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_3);
+                tvt.setText(Initilization.addOnList.get(position));
+                tvt.setGravity(Gravity.CENTER);
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if(i==3 || i==8 || i==13 ||i==18 || i==23 || i==28) {
+                View v = View.inflate(context, R.layout.layout_tab_4, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_4);
+                tvt.setText(Initilization.addOnList.get(position));
+                tvt.setGravity(Gravity.CENTER);
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color4);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if(i==4 || i==9 || i==14 ||i==19 || i==24 || i==29) {
+                View v = View.inflate(context, R.layout.layout_tab_5, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_5);
+                tvt.setText(Initilization.addOnList.get(position));
+                tvt.setGravity(Gravity.CENTER);
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color5);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+        }
     }
 
     @Override
@@ -608,52 +673,6 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             });
             builder.show();
         }
-
-        public String getUsername() {
-            AccountManager manager = AccountManager.get(getContext());
-            Account[] accounts = manager.getAccountsByType("com.google");
-            List<String> possibleEmails = new LinkedList<String>();
-
-            for (Account account : accounts) {
-                // TODO: Check possibleEmail against an email regex or treat
-                possibleEmails.add(account.name);
-            }
-
-            if (!possibleEmails.isEmpty() && possibleEmails.get(0) != null) {
-                String email = possibleEmails.get(0);
-                String[] parts = email.split("@");
-                if (parts.length > 0 && parts[0] != null)
-                    return parts[0];
-                else
-                    return "";
-            } else
-                return "";
-        }
-
-        public final static boolean isValidEmail(CharSequence target) {
-            return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
-        }
-
-        public boolean isValidNumber(String inString) {
-            if(inString.length()==10)
-                return (true);
-            else
-                return (false);
-        }
-
-        public boolean isValidName(String inString){
-            if(inString.length()>=6)
-                return (true);
-            else
-                return (false);
-        }
-
-        public boolean isValidPassowod(String inString){
-            if(inString.length()>=7)
-                return (true);
-            else
-                return (false);
-        }
     }
 
     /**
@@ -669,41 +688,10 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
 
         @Override
         public Fragment getItem(int position) {
-            Bundle args = new Bundle();
+
             //args.putInt(ARG_SECTION_NUMBER, position);
             ReusableFragment fragArray[]=new ReusableFragment[100];
-            /*switch(position){
-                case 0:
-                    index=1;
-                    ReusableFragment fragmentRe=ReusableFragment.newInstanceRe(position);
-                    return fragmentRe;
-                    //fragment.setArguments(bundle);
-                case 1:
-                    index=2;
-                    ReusableFragment fragmentRe2=ReusableFragment.newInstanceRe(position);
-                    return fragmentRe2;
-                    //fragment = new RaggaeMusicFragment();
-                case 2:
-                    index=3;
-                    ReusableFragment fragmentRe3=ReusableFragment.newInstanceRe(position);
-                    return fragmentRe3;
-                case 3:
-                    index=1;
-                    ReusableFragment fragmentRe4=ReusableFragment.newInstanceRe(0);
-                    return fragmentRe4;
-                //fragment.setArguments(bundle);
-                case 4:
-                    index=2;
-                    ReusableFragment fragmentRe5=ReusableFragment.newInstanceRe(1);
-                    return fragmentRe5;
-                //fragment = new RaggaeMusicFragment();
-                case 5:
-                    index=3;
-                    ReusableFragment fragmentRe6=ReusableFragment.newInstanceRe(2);
-                    return fragmentRe6;
-                    //fragment = new RapMusicFragment();
-            }*/
-            if(position<Initilization.newsCategoryLength) {
+            if(position<Initilization.addOnList.size()) {
                 if (position == 1) {
                     if(!sharedpreferences.getBoolean(LOGGEDIN,false)) {
                         return SignUp.newInstance("SignUpInstance");
@@ -716,7 +704,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 else if (position == 2) {
                     return YourView.newInstance("NewInstance","NewInstance");
                 }
-                fragArray[position] = ReusableFragment.newInstanceRe(position, Initilization.newsCategories[position][1]);
+                ////fragArray[position] = ReusableFragment.newInstanceRe(position, Initilization.newsCategories[position][1]);
+                fragArray[position] = ReusableFragment.newInstanceRe(position, Initilization.addOnList.get(position));
                 return fragArray[position];
             }
             return null;
@@ -725,27 +714,14 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         @Override
         public int getCount() {
             //Initilization.newsCategoryLength=15;
-            return Initilization.newsCategoryLength;
+            //return Initilization.newsCategoryLength;
+            return Initilization.addOnList.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            /*switch (position) {
-                case 0:
-                    return "SECTION 1";
-                case 1:
-                    return "SECTION 2";
-                case 2:
-                    return "SECTION 3";
-                case 3:
-                    return "SECTION 4";
-                case 4:
-                    return "SECTION 5";
-                case 5:
-                    return "SECTION 6";
-            }*/
-            //For Testing ive done this part
-            return(Initilization.newsCategories[position][1]);
+            //return(Initilization.newsCategories[position][1]);
+            return (Initilization.addOnList.get(position));
         }
     }
 
@@ -812,6 +788,11 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     }
     public void parseResults(String response)
     {
+        int totalTabs=2;
+        Initilization.addOnList.clear();
+        for (int i = 0; i < 20; i++) {
+            Initilization.addOnList.add("");
+        }
         Initilization.newsCategoryLength=0;
         String categories[][]=new String[1000][2];
         for(int i=0;i<100;i++){
@@ -850,10 +831,31 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             Initilization.resultArray[i][Initilization.NewsImage] = (parser.getValue(e, "NewsImage"));
             Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
             currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
-            int cuDispOrder=Integer.parseInt(currentNewsCategory);
+            int cuDispOrder=0;
+            try {
+                cuDispOrder = Integer.parseInt(currentNewsCategory);
+            }catch (Exception ee){}
+            if(cuDispOrder==0){
+            }
+            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+                Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+            }
+            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+                Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+            }
             categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
             categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
+        }
+
+        Initilization.addOnList.add(2, "EverYou");
+        Initilization.addOnList.add(3,"YourView");
+        for(int i=0;i<Initilization.addOnList.size();){
+            if(Initilization.addOnList.get(i).length()<2) {
+                Initilization.addOnList.remove(i);
+                i--;
+            }
+            i++;
         }
         for(int i=0;i<1000;i++) {
             if(categories[i][0].isEmpty())
@@ -873,5 +875,74 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 Initilization.newsCategoryLength++;
         }
         recreate();
+    }
+
+    class GetCategoryList extends AsyncTask<Void,Void,Void>
+    {
+        String content;
+        int ExceptionCode=0;
+        @Override
+        protected void onPreExecute()
+        {
+            progress.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            try
+            {
+                String fetchLink="http://rssapi.psweb.in/everapi.asmx/GetNewsChannelList";//Over ride but should be Main.androidId
+                content= Jsoup.connect(fetchLink).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
+            }
+            catch(Exception e)
+            {
+                if(e instanceof SocketTimeoutException) {
+                    ExceptionCode=1;
+                    return null;
+                }
+                if(e instanceof HttpStatusException) {
+                    ExceptionCode=2;
+                    return null;
+                }
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            if(content!=null)
+            {
+                String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
+               // Log.d("response", result);
+                //after getting the response we have to parse it
+                parseResultsList(result);
+            }
+            progress.setVisibility(View.GONE);
+            super.onPostExecute(aVoid);
+        }
+    }
+
+    public void parseResultsList(String response)
+    {
+        XMLDOMParser parser = new XMLDOMParser();
+        InputStream stream = new ByteArrayInputStream(response.getBytes());
+        Document doc = parser.getDocument(stream);
+        NodeList nodeList = doc.getElementsByTagName("Table");
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Element e = (Element) nodeList.item(i);
+            Main.catListArray[i][0] = (parser.getValue(e, "RSSUrlId"));
+            Main.catListArray[i][1] = (parser.getValue(e, "RSSURL"));
+            Main.catListArray[i][2] = (parser.getValue(e, "RSSTitle"));
+            Main.catListArray[i][3] = (parser.getValue(e, "Detail"));
+            Main.catListArray[i][4] = (parser.getValue(e, "Comment"));
+            Main.catListArray[i][5] = (parser.getValue(e, "MediaHouse"));
+            Main.catListArray[i][6] = (parser.getValue(e, "NewsType"));
+            validCategory=true;
+        }
     }
 }

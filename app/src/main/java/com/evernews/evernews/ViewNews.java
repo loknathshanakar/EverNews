@@ -33,6 +33,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
@@ -81,7 +82,7 @@ public class ViewNews extends AppCompatActivity {
     static String newsLink="";
     static String newsTitle="";
     static String finalHtml2 = "";
-    public static FloatingActionButton fab;
+    public static FloatingActionButton fab_new;
     private final static float SCROLL_THRESHOLD = 10;
     Context context;
     CallbackManager callbackManager;
@@ -98,7 +99,7 @@ public class ViewNews extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_news2);
         context=this;
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_view_news);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
@@ -106,26 +107,49 @@ public class ViewNews extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (ViewPager) findViewById(R.id.container_view_news);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs_view_news);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+
+        for (int i = 0; i < Initilization.addOnList.size(); i++) {
+            int position = i;
+            if (i == 0) {
+                View v = View.inflate(getBaseContext(), R.layout.layout_tab_1, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_1);
+                tvt.setText("WebView");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color1);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if (i == 1) {
+                View v = View.inflate(getApplicationContext(), R.layout.layout_tab_2, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
+                tvt.setText("EverView");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+        }
+
         getSupportActionBar().setLogo(R.drawable.logo);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
         getSupportActionBar().setTitle("");
         Intent intent = getIntent();
-        newsID = intent.getStringExtra("NEWS_ID");
+        newsID = intent.getStringExtra("NEWS_ID")+"";
         newsLink = intent.getStringExtra("NEWS_LINK")+"";
         newsTitle = intent.getStringExtra("NEWS_TITLE")+"";
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setVisibility(View.GONE);
+        fab_new = (FloatingActionButton) findViewById(R.id.fab_view_news);
+        fab_new.setVisibility(View.GONE);
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        fab_new.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final ShareLinkContent content = new ShareLinkContent.Builder().setContentUrl(Uri.parse("https://developers.facebook.com")).build();
@@ -235,12 +259,12 @@ public class ViewNews extends AppCompatActivity {
                     if(finalHtml.length()>30)
                         finalHtml = "<!DOCTYPE html> <html> <body>" + finalHtml + "</p> </body> </html>";
                     if(noException==true && newsTitle.length()>5)
-                        fab.setVisibility(View.VISIBLE);
+                        fab_new.setVisibility(View.VISIBLE);
                 }
             }.execute();
         }
         else
-            fab.setVisibility(View.VISIBLE);
+            fab_new.setVisibility(View.VISIBLE);
     }
 
 

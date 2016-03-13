@@ -1,6 +1,8 @@
 package com.evernews.evernews;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -33,7 +35,7 @@ public class AddTab extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
+Context context;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -57,8 +59,40 @@ public class AddTab extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setLogo(R.drawable.logo);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
+
+        context=this;
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+        for (int i = 0; i < Initilization.addOnList.size(); i++) {
+            int position = i;
+            if (i == 0) {
+                View v = View.inflate(context, R.layout.layout_tab_2, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
+                tvt.setText("Featured");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if (i == 1) {
+                View v = View.inflate(context, R.layout.layout_tab_3, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_3);
+                tvt.setText("Popular");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+            if (i == 2) {
+                View v = View.inflate(context, R.layout.layout_tab_4, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_4);
+                tvt.setText("Category");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color4);
+                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                tabLayout.setSelectedTabIndicatorHeight(5);
+            }
+        }
     }
 
     @Override
@@ -145,9 +179,14 @@ public class AddTab extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position);
+            if(position==0){
+                return NewsAddListFragment.newInstanceREE(position, "Featured");
+            }
+            else if(position==1){
+                return NewsAddListFragment.newInstanceREE(position, "Popular");
+            }else{
+                return NewsAddListFragment.newInstanceREE(position, "Categories");
+            }
         }
 
         @Override

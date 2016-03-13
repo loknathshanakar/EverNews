@@ -4,7 +4,9 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInstaller;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,6 +22,20 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+
+import org.json.JSONObject;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
@@ -27,6 +43,9 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 
@@ -73,6 +92,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
     Button noAction; // = (Button) getActivity().findViewById(R.id.noAction);
     Button fbSignup ; //= (Button) getActivity().findViewById(R.id.facebook);
     Button gSignup; // = (Button) getActivity().findViewById(R.id.google);
+    Button twittersignup;
     Pattern emailPattern;
     Account[] accounts;
     public static SignUp newInstance(String param1) {
@@ -82,12 +102,80 @@ public class SignUp extends Fragment implements View.OnClickListener{
         fragment.setArguments(args);
         return fragment;
     }
+    CallbackManager callbackManager;
+    AccessTokenTracker accessTokenTracker;
+    AccessToken accessToken;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {        //fb related callback
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            accessTokenTracker.stopTracking();
+        }catch (Exception e){}
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
+
+
+            FacebookSdk.sdkInitialize(getContext());
+            callbackManager = CallbackManager.Factory.create();
+            LoginManager.getInstance().registerCallback(callbackManager,
+                    new FacebookCallback<LoginResult>() {
+                        @Override
+                        public void onSuccess(LoginResult loginResult) {
+                            accessToken = AccessToken.getCurrentAccessToken();
+                            GraphRequest request = GraphRequest.newMeRequest(
+                                    accessToken,
+                                    new GraphRequest.GraphJSONObjectCallback() {
+                                        @Override
+                                        public void onCompleted(
+                                                JSONObject object,
+                                                GraphResponse response) {
+                                            try {
+                                                String email = object.getString("email")+"";
+                                                String fullName=object.getString("name")+"";
+                                                userName.setText(fullName);
+                                                userEmail.setText(email);
+                                                if(fullName.length()>0 && isValidEmail(email)) {
+                                                    password.setHint("Password is not needed for Facebook login");
+                                                    comfirmpassword.setHint("Password is not needed for Facebook login");
+                                                    password.setEnabled(false);
+                                                    comfirmpassword.setEnabled(false);
+                                                }else{
+                                                    Toast.makeText(getContext(),"Some details were not avaliable in your facebook account",Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                            catch (Exception e){
+                                                Toast.makeText(getContext(),"Failed to retrieve info from facebook",Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                            Bundle parameters = new Bundle();
+                            parameters.putString("fields", "id,name,email");
+                            request.setParameters(parameters);
+                            request.executeAsync();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            Toast.makeText(getContext(),"Login Cancel",Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onError(FacebookException exception) {
+                            Toast.makeText(getContext(),"Login Error",Toast.LENGTH_LONG).show();
+                        }
+                    });
+
         }
     }
 
@@ -109,10 +197,12 @@ public class SignUp extends Fragment implements View.OnClickListener{
         signUp.setOnClickListener(this);
         noAction = (Button) view.findViewById(R.id.noAction);
         noAction.setOnClickListener(this);
-        fbSignup = (Button) view.findViewById(R.id.facebook);
-        fbSignup.setOnClickListener(this);
         gSignup = (Button) view.findViewById(R.id.google);
         gSignup.setOnClickListener(this);
+        twittersignup= (Button) view.findViewById(R.id.twitter);
+        twittersignup.setOnClickListener(this);
+        fbSignup = (Button) view.findViewById(R.id.facebook_normal);
+        fbSignup.setOnClickListener(this);
         return view;
     }
 
@@ -234,12 +324,33 @@ public class SignUp extends Fragment implements View.OnClickListener{
                 Toast.makeText(getContext(),"Login Call will come here",Toast.LENGTH_SHORT).show();
             }
             break;
-            case R.id.facebook: {
-                Toast.makeText(getContext(),"Facebook Call will come here",Toast.LENGTH_SHORT).show();
+            case R.id.facebook_normal: {
+                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "email"));
+                /*LoginButton mfacebook = (LoginButton) v.findViewById(R.id.facebook);
+                mfacebook.setReadPermissions("user_friends");
+                mfacebook.setFragment(this);
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location");*/
             }
             break;
             case R.id.google: {
-                Toast.makeText(getContext(),"Google Call will come here",Toast.LENGTH_SHORT).show();
+                String fullname=getUsername();
+                String email=getgoogleMailId();
+                userName.setText(fullname);
+                userEmail.setText(email);
+                if(fullname.length()>0 && isValidEmail(email)) {
+                    password.setHint("Password is not needed for Google login");
+                    comfirmpassword.setHint("Password is not needed for Google login");
+                    password.setEnabled(false);
+                    comfirmpassword.setEnabled(false);
+                }
+                else{
+                    Toast.makeText(getContext(),"Some details were not avaliable in your google account",Toast.LENGTH_LONG).show();
+                }
+            }
+            break;
+            case R.id.twitter: {
+                Toast.makeText(getContext(),"Twitter Call will come here",Toast.LENGTH_SHORT).show();
             }
             break;
         }
@@ -270,6 +381,41 @@ public class SignUp extends Fragment implements View.OnClickListener{
             return (false);
     }
 
+    public String getUsername() {
+        AccountManager manager = AccountManager.get(getContext());
+        Account[] accounts = manager.getAccountsByType("com.google");
+        List<String> possibleEmails = new LinkedList<String>();
+
+        for (Account account : accounts) {
+            // TODO: Check possibleEmail against an email regex or treat
+            possibleEmails.add(account.name);
+        }
+
+        if (!possibleEmails.isEmpty() && possibleEmails.get(0) != null) {
+            String email = possibleEmails.get(0);
+            String[] parts = email.split("@");
+            if (parts.length > 0 && parts[0] != null)
+                return parts[0];
+            else
+                return "";
+        } else
+            return "";
+    }
+
+    public String getgoogleMailId(){
+        AccountManager manager = AccountManager.get(getContext());
+        Account[] accounts = manager.getAccountsByType("com.google");
+        List<String> possibleEmails = new LinkedList<String>();
+
+        for (Account account : accounts) {
+            // TODO: Check possibleEmail against an email regex or treat
+            possibleEmails.add(account.name);
+        }
+        if(possibleEmails.size()>0)
+            return possibleEmails.get(0);
+        else
+            return "";
+    }
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

@@ -33,6 +33,7 @@ import java.util.List;
 
 public class ReusableFragment extends Fragment {
     private static final String TYPE_KEY = "type";
+    private static final int REQUESTCODE = 1900;
     private static final String TAB_NAME = "tab_name";
     private static  String asyncCatId="";
     private static  String asyncNewsId="";
@@ -69,87 +70,13 @@ public class ReusableFragment extends Fragment {
         CustomAdapter customAdapter = new CustomAdapter(getActivity(), itemCollection);
         gridView.setAdapter(customAdapter);
         gridView.setSelection(postionToMaintain);
-        Toast.makeText(getContext()," "+ getArguments().getInt(TYPE_KEY), Toast.LENGTH_SHORT).show();
-        /*btn=(Button)rootView.findViewById(R.id.loadmore);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Toast.makeText(getContext(),"Loading more news",Toast.LENGTH_LONG).show();
-                new AsyncTask<Void,Void,String>()
-                {
-                    String content;
-                    int ExceptionCode=0;
-                    @Override
-                    protected void onPreExecute()
-                    {
-                        asyncitems.clear();
-                        Main.progress.setVisibility(View.VISIBLE);
-                        ExceptionCode=0;
-                        super.onPreExecute();
-                    }
-                    @Override
-                    protected String doInBackground(Void... params)
-                    {
-                        try
-                        {
-                            asyncNewsId=itemCollection.get(itemCollection.size()-1).getNewsID();
-                            asyncCatId=itemCollection.get(itemCollection.size()-1).getCategoryID();
-                            Initilization.androidId = android.provider.Settings.Secure.getString(getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-                            String fetchLink="http://rssapi.psweb.in/everapi.asmx/LoadNextNewsForCategory?CategoryId="+asyncCatId+"&LastNewsId="+asyncNewsId;//+Initilization.androidId;//Over ride but should be Main.androidId
-                            content= Jsoup.connect(fetchLink).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
-                        }
-                        catch(Exception e)
-                        {
-                            if(e instanceof SocketTimeoutException) {
-                                ExceptionCode=1;
-                                return null;
-                            }
-                            if(e instanceof HttpStatusException) {
-                                ExceptionCode=2;
-                                return null;
-                            }
-                            ExceptionCode=3;
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(String link)
-                    {
-                        if(ExceptionCode>0) {
-                            if(ExceptionCode==1)
-                                Toast.makeText(getContext(), "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
-                            if(ExceptionCode==2)
-                                Toast.makeText(getContext(),"Some server related issue occurred..please try again later",Toast.LENGTH_SHORT).show();
-                            else
-                                Toast.makeText(getContext(),"Unknown error occured",Toast.LENGTH_SHORT).show();
-                        }
-                        if(content!=null && ExceptionCode==0)
-                        {
-                            String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
-                            Log.d("response", result);
-                            //after getting the response we have to parse it
-                            parseResults(result);
-                            itemCollection.addAll(asyncitems);
-                            int postionToMaintain = gridView.getFirstVisiblePosition();
-                            CustomAdapter customAdapter = new CustomAdapter(getActivity(), itemCollection);
-                            gridView.setAdapter(customAdapter);
-                            gridView.setSelection(postionToMaintain);
-                            //Toast.makeText(getContext(),"More news loaded",Toast.LENGTH_LONG).show();
-                        }
-                        Main.progress.setVisibility(View.GONE);
-                    }
-                }.execute();
-            }
-        });*/
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(getActivity(), "Position: " + position, Toast.LENGTH_SHORT).show();
                 final String newsID=itemCollection.get(position).getNewsID();
-                if(newsID.isEmpty()) {
+                if(newsID==null || newsID.isEmpty()) {
                     try {
                         wait(200);
                     }
@@ -157,7 +84,10 @@ public class ReusableFragment extends Fragment {
                     }
                 }
                 final Intent i = new Intent(getActivity().getBaseContext(), ViewNews.class);
-                i.putExtra("NEWS_ID", newsID);
+                if(newsID==null)
+                    i.putExtra("NEWS_ID", newsID);
+                else
+                    i.putExtra("NEWS_ID", newsID);
                 i.putExtra("NEWS_LINK", "EMPTY");
                 i.putExtra("NEWS_TITLE", "EMPTY");
                 new AsyncTask<Void, Void, String>() {
@@ -182,7 +112,10 @@ public class ReusableFragment extends Fragment {
                             eIndex = Xml.indexOf("</NewsTitle>");
                             if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
                                 title= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                i.putExtra("NEWS_TITLE", title);
+                                if(title==null)
+                                    i.putExtra("NEWS_TITLE", "NULL");
+                                else
+                                    i.putExtra("NEWS_TITLE", title);
                                 title="<h1><center>"+title+"</center></h1><br>";
                             }
                             iIndex = Xml.indexOf("<RSSTitle>") + 10;
@@ -195,7 +128,10 @@ public class ReusableFragment extends Fragment {
                             eIndex = Xml.indexOf("</NewsURL>");
                             if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
                                 newsLink= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                i.putExtra("NEWS_LINK", newsLink);
+                                if(title==null)
+                                    i.putExtra("NEWS_LINK", "NULL");
+                                else
+                                    i.putExtra("NEWS_LINK", newsLink);
                             }
                             ViewNews.finalHtml = source+title+news;
                             String Temp=ViewNews.finalHtml;
@@ -213,6 +149,7 @@ public class ReusableFragment extends Fragment {
                         ViewNews.finalHtml = "<!DOCTYPE html> <html> <body>"+ ViewNews.finalHtml + "</p> </body> </html>";
                     }
                 }.execute();
+
                 startActivity(i);
             }
         });
@@ -259,7 +196,7 @@ public class ReusableFragment extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem + visibleItemCount >= totalItemCount) {
                     int i=getArguments().getInt(TYPE_KEY);
-                    fab.setVisibility(View.VISIBLE);
+                        fab.setVisibility(View.VISIBLE);
                     fab.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -348,31 +285,34 @@ public class ReusableFragment extends Fragment {
     private List<ItemObject> getDefaultNews(int ii){
         List<ItemObject> items = new ArrayList<>();
         int i= getArguments().getInt(TYPE_KEY);
+        String tabName=getArguments().getString(TAB_NAME);
         if(i==1 || i==2)
             return items;
         if(i>=0) {
             for(int j=0;j<=Initilization.resultArrayLength;j++){
-                int categoryId=-100;
+                /*int categoryId=-100;
                 try{
                     categoryId=Integer.parseInt(Initilization.resultArray[j][Initilization.CategoryId]);
                 }catch (Exception e){e.printStackTrace();}
                 if(categoryId>1)
-                    categoryId= categoryId+2;
-                if((categoryId-1)==i) {
-                    String par1 = Initilization.resultArray[j][Initilization.NewsImage];
-                    String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
-                    String par3 = Initilization.resultArray[j][Initilization.Category];
-                    String par4 = Initilization.resultArray[j][Initilization.NewsId];
-                    String par5 = Initilization.resultArray[j][Initilization.CategoryId];
-                    items.add(new ItemObject(par1, par2, par3, par4,par5));
-                    refrenceCounter++;
-                    //Need to implement a filter to prevent re adding of data
-                    for(int k=0;k<itemCollection.size();k++){
-                        if(itemCollection.get(k).getNewsID().compareTo(par4)==0){
-                            items.remove(items.size()-1);
+                    categoryId= categoryId+2;*/
+                //try {
+                    if (tabName.compareTo(Initilization.resultArray[j][Initilization.Category]) == 0) {
+                        String par1 = Initilization.resultArray[j][Initilization.NewsImage];
+                        String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
+                        String par3 = Initilization.resultArray[j][Initilization.Category];
+                        String par4 = Initilization.resultArray[j][Initilization.NewsId];
+                        String par5 = Initilization.resultArray[j][Initilization.CategoryId];
+                        items.add(new ItemObject(par1, par2, par3, par4, par5));
+                        refrenceCounter++;
+                        //Need to implement a filter to prevent re adding of data
+                        for (int k = 0; k < itemCollection.size(); k++) {
+                            if (itemCollection.get(k).getNewsID().compareTo(par4) == 0) {
+                                items.remove(items.size() - 1);
+                            }
                         }
                     }
-                }
+                //}catch(Exception e){}
             }
         }
         return items;

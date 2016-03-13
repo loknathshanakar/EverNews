@@ -28,6 +28,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
+import java.util.ArrayList;
 
 public class Initilization extends AppCompatActivity {
     public static final int CategoryId = 0;
@@ -49,7 +50,7 @@ public class Initilization extends AppCompatActivity {
     public static String newsCategories[][]=new String[100][2];
     public static int resultArrayLength=0;
     public static int newsCategoryLength=0;
-
+    public static ArrayList<String> addOnList = new ArrayList <String>(10);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,6 +140,11 @@ public class Initilization extends AppCompatActivity {
             categories[i][0]="";
             categories[i][1]="";
         }
+        Initilization.addOnList.clear();
+        for (int i = 0; i < 20; i++) {
+            Initilization.addOnList.add("");
+        }
+
         int index=0;
         String currentNewsCategory="";
         Initilization.newsCategories[1][1]="EverYou";
@@ -167,11 +173,34 @@ public class Initilization extends AppCompatActivity {
             Initilization.resultArray[i][Initilization.NewsImage] = (parser.getValue(e, "NewsImage"));
             Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
             currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
-            int cuDispOrder=Integer.parseInt(currentNewsCategory);
+            int cuDispOrder=0;
+            try {
+                cuDispOrder = Integer.parseInt(currentNewsCategory);
+            }catch (Exception ee){}
+            if(cuDispOrder==0){
+            }
+            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+                Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+            }
+            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+                Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+            }
             categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
             categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
         }
+
+
+        Initilization.addOnList.add(2, "EverYou");
+        Initilization.addOnList.add(3,"YourView");
+        for(int i=0;i<Initilization.addOnList.size();){
+            if(Initilization.addOnList.get(i).length()<2) {
+                Initilization.addOnList.remove(i);
+                i--;
+            }
+            i++;
+        }
+
         for(int i=0;i<1000;i++) {
             if(categories[i][0].isEmpty())
                 continue;
