@@ -87,6 +87,8 @@ public class Initilization extends AppCompatActivity {
     public static int resultArrayLength=0;
     public static int newsCategoryLength=0;
     public static ArrayList<String> addOnList = new ArrayList <String>(10);
+    public static ArrayList<String> addOnListTOCompare = new ArrayList <String>(10);
+    public static ArrayList<String> getAddOnListRSSID = new ArrayList <String>(10);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,8 +213,10 @@ public class Initilization extends AppCompatActivity {
             categories[i][1]="";
         }
         Initilization.addOnList.clear();
+        Initilization.addOnListTOCompare.clear();
         for (int i = 0; i < 20; i++) {
             Initilization.addOnList.add("");
+            Initilization.addOnListTOCompare.add("");
         }
 
         int index=0;
@@ -275,14 +279,16 @@ public class Initilization extends AppCompatActivity {
             }catch (Exception ee){}
             if(cuDispOrder==0){
             }
-            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
                 Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
-            categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
+            //categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
+            //categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
         }
 
@@ -297,8 +303,8 @@ public class Initilization extends AppCompatActivity {
             }
             i++;
         }
-
-        for(int i=0;i<1000;i++) {
+        Initilization.addOnListTOCompare.clear();
+        /*for(int i=0;i<1000;i++) {
             if(categories[i][0].isEmpty())
                 continue;
             for(int j=0;j<100;j++){
@@ -314,7 +320,7 @@ public class Initilization extends AppCompatActivity {
                 continue;
             } else
                 Initilization.newsCategoryLength++;
-        }
+        }*/
     }
 
 

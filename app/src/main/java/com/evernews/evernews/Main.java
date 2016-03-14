@@ -1,8 +1,6 @@
 package com.evernews.evernews;
 
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,40 +12,38 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.jibble.simpleftp.SimpleFTP;
+
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
+
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
@@ -55,20 +51,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class Main extends AppCompatActivity implements SignUp.OnFragmentInteractionListener,PostArticle.OnFragmentInteractionListener {
 
@@ -99,7 +86,9 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     public static String ISREGISTRED="ISREGISTRED";
     public static String LOGGEDIN="LOGGEDIN";
     public static String NEWCHANNELADDED="NEWCHANNELADDED";
+    ShareDialog shareDialog;
     Context context;
+    int mandetTab=10;
     public void onFragmentInteraction(Uri uri){
         //you can leave it empty
     }
@@ -184,6 +173,99 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 tabLayout.setSelectedTabIndicatorHeight(5);
             }
         }
+
+        LinearLayout tabStrip = (LinearLayout) tabLayout.getChildAt(0);
+        for (int i = 0; i < tabStrip.getChildCount(); i++) {
+            final int x=i;
+            tabStrip.getChildAt(i).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(final View v) {
+                    if (x > mandetTab) {
+                        final ShareLinkContent content = new ShareLinkContent.Builder().setContentUrl(Uri.parse("https://developers.facebook.com")).build();
+                        AlertDialog.Builder builderSingle = new AlertDialog.Builder(context);
+                        builderSingle.setIcon(R.drawable.ic_launcher);
+                        builderSingle.setTitle("Remove Tab");
+                        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(context, android.R.layout.select_dialog_item);
+                        arrayAdapter.add("Remove " +Initilization.addOnList.get(x));
+                        builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        builderSingle.setAdapter(
+                                arrayAdapter,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case 0: {
+                                                new AsyncTask<Void, Integer, String>() {
+                                                    String JsoupResopnse="";
+                                                    int ExceptionCode = 0;       //sucess;
+                                                    ProgressDialog progressdlg;
+                                                    @Override
+                                                    protected void onProgressUpdate(Integer... text) {
+                                                        if(text[0]==1)
+                                                            progressdlg.setMessage("Removing channel");
+                                                    }
+
+                                                    @Override
+                                                    protected void onPreExecute() {
+                                                        Main.progress.setVisibility(View.VISIBLE);
+                                                        progressdlg = new ProgressDialog(context);
+                                                        progressdlg.setMessage("Connecting to server...");
+                                                        progressdlg.setTitle("Removing channel");
+                                                        progressdlg.setCancelable(false);
+                                                        progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                                        progressdlg.setIndeterminate(true);
+                                                        progressdlg.show();
+                                                    }
+                                                    @Override
+                                                    protected String doInBackground(Void... params) {
+                                                        try {
+                                                            String RSSUID=Initilization.getAddOnListRSSID.get(x);
+                                                            String RSSNAME=Initilization.addOnList.get(x);
+                                                            publishProgress(1);
+                                                            Initilization.androidId = android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+                                                            String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/RemoveNewsTAB?"+RSSUID.replace(" ","")+"&AndroidId="+Initilization.androidId;
+                                                            JsoupResopnse= Jsoup.connect(xmlUrl).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
+                                                            if(!JsoupResopnse.contains("<int xmlns=\"http://tempuri.org/\">1</int>")){
+                                                                ExceptionCode=2;//Add failure but not connection
+                                                            }
+                                                        }
+                                                        catch (IOException e) {
+                                                            ExceptionCode=1;    //failure
+                                                        }
+                                                        return null;
+                                                    }
+                                                    @Override
+                                                    protected void onPostExecute(String link) {
+                                                        progressdlg.dismiss();
+                                                        if(ExceptionCode==0) {
+                                                            SharedPreferences.Editor editor = sharedpreferences.edit();
+                                                            editor.putBoolean(Main.NEWCHANNELADDED, true);
+                                                            Snackbar snackbar = Snackbar.make(v, "News removed successfully...", Snackbar.LENGTH_LONG);
+                                                            snackbar.show();
+                                                        }
+                                                        else{
+                                                            Snackbar snackbar = Snackbar.make(v, "Sorry news could not be removed...", Snackbar.LENGTH_LONG);
+                                                            snackbar.show();
+                                                        }
+                                                    }
+                                                }.execute();
+                                            }
+                                                break;
+                                        }
+                                    }
+                                });
+                        builderSingle.show();
+                    }
+                    return false;
+                }
+            });
+        }
     }
 
     @Override
@@ -266,331 +348,6 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView=null;
-//            if(sharedpreferences.getBoolean("ISREGISTRED", false) == false && getArguments().getInt(ARG_SECTION_NUMBER)==1) {
-//
-//               rootView = inflater.inflate(R.layout.fragment_sign_up, container, false);
-//            }
-//            else if(sharedpreferences.getBoolean("ISREGISTRED", false) == true && getArguments().getInt(ARG_SECTION_NUMBER)==1){
-//                rootView = inflater.inflate(R.layout.fragment_post_article, container, false);
-//            }
-//            if(getArguments().getInt(ARG_SECTION_NUMBER)==2) {
-//                rootView = inflater.inflate(R.layout.fragment_your_view, container, false);
-//            }
-//            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-//            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-//            //int position=getArguments().getInt(ARG_SECTION_NUMBER);*/
-//            if(sharedpreferences.getBoolean("ISREGISTRED",false) == false && getArguments().getInt(ARG_SECTION_NUMBER)==1) {
-//                final TextView userName = (TextView) getActivity().findViewById(R.id.userName);
-//                final TextView userEmail = (TextView) getActivity().findViewById(R.id.userEmail);
-//                final TextView userNumber = (TextView) getActivity().findViewById(R.id.userNumber);
-//                final TextView password = (TextView) getActivity().findViewById(R.id.password);
-//                final Button signUp = (Button) getActivity().findViewById(R.id.signup);
-//                final Button noAction = (Button) getActivity().findViewById(R.id.noAction);
-//                final Button fbSignup = (Button) getActivity().findViewById(R.id.facebook);
-//                final Button gSignup = (Button) getActivity().findViewById(R.id.google);
-//                final Pattern emailPattern = Patterns.EMAIL_ADDRESS; // API level 8+
-//                final Account[] accounts = AccountManager.get(getContext()).getAccounts();
-//                signUp.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        final String userNames = userName.getText().toString().replace(" ","");
-//                        final String emails = userEmail.getText().toString().replace(" ", "");
-//                        final String pnumbers = userNumber.getText().toString().replace(" ", "");
-//                        final String passWord = password.getText().toString().replace(" ", "");
-//                        String errorString = "Please correct the following errors...\r\n";
-//                        boolean validEmail = isValidEmail(emails);
-//                        boolean validNumber = isValidNumber(pnumbers);
-//                        boolean validUsername = isValidName(userNames);
-//                        boolean validPassword = isValidPassowod(passWord);
-//                        if (validUsername == false)
-//                            errorString = errorString + ">Invalid Username (6 Char min)\r\n";
-//                        if (validEmail == false)
-//                            errorString = errorString + ">Invalid email address\r\n";
-//                        if (validNumber == false)
-//                            errorString = errorString + ">Invalid mobile number\r\n";
-//                        if (validPassword == false)
-//                            errorString = errorString + ">Invalid Password";
-//                        if (validEmail == true && validNumber == true && validUsername == true && validPassword == true) {
-//                            //Post details to server
-//                            Initilization.androidId = android.provider.Settings.Secure.getString(getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-//                            String urlStr="http://rssapi.psweb.in/everapi.asmx/RegisterUser?FullName=" + userNames + "&Email=" + emails + "&Password=" + passWord + "&Mobile=" + pnumbers + "&AndroidId=" + Initilization.androidId;
-//                            URL url=null;
-//                            try{
-//                            url = new URL(urlStr);
-//                            URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-//                            url = uri.toURL();
-//                            }
-//                            catch(Exception e){}
-//                            final String urlRequest = url.toString();
-//                            progress.setVisibility(View.VISIBLE);
-//                            new AsyncTask<Void, Void, String>() {
-//                                int ExceptionCode = 0;
-//                                String JsoupResopnse = "";
-//                                @Override
-//                                protected String doInBackground(Void... params) {
-//                                    try {
-//                                        JsoupResopnse = Jsoup.connect(urlRequest).timeout(Initilization.timeout).ignoreContentType(true).execute().body();
-//                                        int iIndex = JsoupResopnse.indexOf("\">") + 2;
-//                                        int eIndex = JsoupResopnse.indexOf("</");
-//                                        char jChar[] = JsoupResopnse.toCharArray();
-//                                        if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex)
-//                                            JsoupResopnse = JsoupResopnse.copyValueOf(jChar, iIndex, (eIndex - iIndex));
-//                                    } catch (IOException e) {
-//                                        if (e instanceof SocketTimeoutException) {
-//                                            ExceptionCode = 1;
-//                                            return null;
-//                                        }
-//                                        if (e instanceof HttpStatusException) {
-//                                            ExceptionCode = 2;
-//                                            return null;
-//                                        }
-//                                    }
-//                                    return null;
-//                                }
-//
-//                                @Override
-//                                protected void onPostExecute(String link) {
-//                                    if (ExceptionCode > 0) {
-//                                        if (ExceptionCode == 1)
-//                                            Toast.makeText(getContext(), "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
-//                                        if (ExceptionCode == 2)
-//                                            Toast.makeText(getContext(), "Some server related issue occurred..please try again later", Toast.LENGTH_SHORT).show();
-//                                    }
-//                                    if (JsoupResopnse.isEmpty() == false && Integer.valueOf(JsoupResopnse) > 0) {
-//                                        //Store all user data into shared prefrence
-//                                        SharedPreferences.Editor editor = sharedpreferences.edit();
-//                                        editor.putString("USERNAME", userNames);
-//                                        editor.putInt("USERID", Integer.valueOf(JsoupResopnse));
-//                                        editor.putString("USEREMAIL", emails);
-//                                        editor.putString("USERPHONENUMBER", pnumbers);
-//                                        editor.putBoolean("ISREGISTRED", true);
-//                                        editor.commit();
-//                                        Toast.makeText(getContext(), "Registration complete your UserId is " + JsoupResopnse, Toast.LENGTH_LONG).show();
-//                                        userName.setText("");
-//                                        userEmail.setText("");
-//                                        userNumber.setText("");
-//                                        password.setText("");
-//                                        progress.setVisibility(View.GONE);
-//                                    } else
-//                                        Toast.makeText(getContext(), "Please check the filled details", Toast.LENGTH_SHORT).show();
-//                                }
-//                            }.execute();
-//                        } else {
-//                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//                            builder.setMessage(errorString)
-//                                    .setCancelable(false)
-//                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                                        public void onClick(DialogInterface dialog, int id) {
-//                                            return;
-//                                        }
-//                                    });
-//                            AlertDialog alert = builder.create();
-//                            alert.show();
-//                        }
-//                    }
-//                });
-//                noAction.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        Toast.makeText(getContext(), "LogIn", Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//                fbSignup.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        Toast.makeText(getContext(), "Facebook", Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//                gSignup.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        String possibleEmail = "Nothing";
-//                        String username = getUsername();
-//                        for (Account account : accounts) {
-//                            if (emailPattern.matcher(account.name).matches()) {
-//                                possibleEmail = account.name;
-//                                break;
-//                            }
-//                        }
-//                        Toast.makeText(getContext(), "EMail : " + possibleEmail + "\r\n Username : " + username, Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//            }
-//
-//            if(sharedpreferences.getBoolean("ISREGISTRED", false) == true && getArguments().getInt(ARG_SECTION_NUMBER)==1){
-//                final TextView artTitle=(TextView)getActivity().findViewById(R.id.title);
-//                final TextView artDesc=(TextView)getActivity().findViewById(R.id.post);
-//                artImage=(ImageView)getActivity().findViewById(R.id.viewImage);
-//                final TextView artPhoto=(TextView)getActivity().findViewById(R.id.btnSelectPhoto);
-//                final TextView artSubmit=(TextView)getActivity().findViewById(R.id.submitPost);
-//
-//                artSubmit.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        final String articleTitle=artTitle.getText().toString();
-//                        final String articleContent=artDesc.getText().toString();
-//                        final String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
-//                        if(articleTitle.length()<8 || articleContent.length()<20){
-//                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//                                builder.setMessage("Article title or content does not meet the required specification")
-//                                        .setCancelable(false)
-//                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                                            public void onClick(DialogInterface dialog, int id) {
-//                                                return;
-//                                            }
-//                                        });
-//                                AlertDialog alert = builder.create();
-//                                alert.show();
-//                        }
-//                        else{
-//                            new AsyncTask<Void, Integer, String>() {
-//                                int ExceptionCode = 0;
-//                                String JsoupResopnse = "";
-//                                int FtpExceptions= 0;
-//                                ProgressDialog progressdlg;
-//                                @Override
-//                                protected void onProgressUpdate(Integer... text) {
-//                                    if(text[0]==1)
-//                                        progressdlg.setMessage("Uploading image...");
-//                                    if(text[0]==2)
-//                                        progressdlg.setMessage("Connecting to content server");
-//                                    if(text[0]==3)
-//                                        progressdlg.setMessage("Uploading content...");
-//                                }
-//
-//                                @Override
-//                                protected void onPreExecute() {
-//                                    progress.setVisibility(View.VISIBLE);
-//                                    progressdlg = new ProgressDialog(getContext());
-//                                    progressdlg.setMessage("Connecting to server...");
-//                                    progressdlg.setTitle("Posting article");
-//                                    progressdlg.setCancelable(false);
-//                                    progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//                                    progressdlg.setIndeterminate(true);
-//                                    progressdlg.show();
-//                                }
-//                                @Override
-//                                protected String doInBackground(Void... params) {
-//                                    try {
-//                                        SimpleFTP ftp = new SimpleFTP();
-//                                        //HostName : 178.77.67.207
-//                                        //username : APPUser
-//                                        //Password : 7Prr1z@6
-//                                        // Connect to an FTP server on port 21.
-//                                        ftp.connect("178.77.67.207", 21, "APPUser", "7Prr1z@6");
-//
-//                                        // Set binary mode.
-//                                        //ftp.bin();
-//
-//                                        // Change to a new working directory on the FTP server.
-//                                        //ftp.cwd("web");
-//
-//                                        // Upload some files.
-//                                        publishProgress(1);
-//                                        ftp.stor(new File(extStorageDirectory, uniqueID + ".jpg"));
-//                                        //ftp.stor(new File("comicbot-latest.png"));
-//
-//                                        // You can also upload from an InputStream, e.g.
-//                                        //ftp.stor(new FileInputStream(new File("test.png")), "test.png");
-//                                        //ftp.stor(someSocket.getInputStream(), "blah.dat");
-//
-//                                        // Quit from the FTP server.
-//                                        ftp.disconnect();
-//                                    }
-//                                    catch (IOException e) {
-//                                        if(e instanceof  FileNotFoundException)
-//                                            FtpExceptions=1;
-//                                        else
-//                                            FtpExceptions=2;
-//                                        uniqueID = "ImageNotSelected";
-//                                        e.printStackTrace();
-//                                    }
-//                                    return null;
-//                                }
-//                                @Override
-//                                protected void onPostExecute(String link) {
-//                                    if(FtpExceptions==1){
-//                                        //Toast.makeText(getContext(),"File does not exist,please reselect the file...",Toast.LENGTH_LONG).show();
-//                                        //progressdlg.dismiss();
-//                                    }
-//                                    else if(FtpExceptions==2) {
-//                                        Toast.makeText(getContext(), "Some unknown error during image upload...", Toast.LENGTH_LONG).show();
-//                                        // progressdlg.dismiss();
-//                                    }
-//
-//                                    Initilization.androidId = android.provider.Settings.Secure.getString(getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-//                                    int AppUserId=sharedpreferences.getInt("USERID",0);
-//                                    String urlStr="http://rssapi.psweb.in/everapi.asmx/NewPost?AppUserId="+AppUserId+"&Title="+articleTitle+"&Description="+articleContent+"&PostImage="+uniqueID+"&AndroidId="+Initilization.androidId;
-//                                    URL url=null;
-//                                    try{
-//                                        url = new URL(urlStr);
-//                                        URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-//                                        url = uri.toURL();
-//                                    }
-//                                    catch(Exception e){}
-//                                    final String urlRequest = url.toString();
-//                                    new AsyncTask<Void, Integer, String>() {
-//                                        int ExceptionCode = 0;
-//                                        String JsoupResopnse = "";
-//                                        @Override
-//                                        protected void onProgressUpdate(Integer... text) {
-//                                            if(text[0]==2)
-//                                                progressdlg.setMessage("Connecting to content server");
-//                                            if(text[0]==3)
-//                                                progressdlg.setMessage("Uploading content...");
-//                                        }
-//                                        @Override
-//                                        protected String doInBackground(Void... params) {
-//                                            try {
-//                                                publishProgress(3);
-//                                                JsoupResopnse = Jsoup.connect(urlRequest).timeout(Initilization.timeout-5).ignoreContentType(true).execute().body();
-//                                                int iIndex = JsoupResopnse.indexOf("\">") + 2;
-//                                                int eIndex = JsoupResopnse.indexOf("</");
-//                                                char jChar[] = JsoupResopnse.toCharArray();
-//                                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex)
-//                                                    JsoupResopnse = JsoupResopnse.copyValueOf(jChar, iIndex, (eIndex - iIndex));
-//                                            } catch (IOException e) {
-//                                                if (e instanceof SocketTimeoutException) {
-//                                                    ExceptionCode = 1;
-//                                                    return null;
-//                                                }
-//                                                if (e instanceof HttpStatusException) {
-//                                                    ExceptionCode = 2;
-//                                                    return null;
-//                                                }
-//                                            } finally {
-//                                                File file = new File(extStorageDirectory, uniqueID + ".jpg");
-//                                                file.delete();
-//                                                uniqueID="";
-//                                            }
-//                                            return null;
-//                                        }
-//                                        @Override
-//                                        protected void onPostExecute(String link) {
-//                                                if (ExceptionCode == 1)
-//                                                    Toast.makeText(getContext(), "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
-//                                                else if (ExceptionCode == 2)
-//                                                    Toast.makeText(getContext(), "Some server related issue occurred..please try again later", Toast.LENGTH_SHORT).show();
-//                                                else if(JsoupResopnse.isEmpty())
-//                                                    Toast.makeText(getContext(), "Something went wrong..sorry", Toast.LENGTH_SHORT).show();
-//                                                else
-//                                                    Toast.makeText(getContext(), "Post upload done "+JsoupResopnse, Toast.LENGTH_SHORT).show();
-//
-//                                            artImage.setImageResource(R.mipmap.camera2);
-//                                            artTitle.setText("");
-//                                            artDesc.setText("");
-//                                            progress.setVisibility(View.GONE);
-//                                            progressdlg.dismiss();
-//                                        }
-//                                    }.execute();
-//                                }
-//                            }.execute();
-//                        }
-//                    }
-//                });
-//                artPhoto.setOnClickListener(new View.OnClickListener() {
-//                    public void onClick(View v) {
-//                        if(uniqueID.length()<4)
-//                            uniqueID = UUID.randomUUID().toString().toLowerCase();
-//                        selectImage();
-//                    }
-//                });
-//            }
             return rootView;
         }
 
@@ -644,7 +401,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     String picturePath = c.getString(columnIndex);
                     c.close();
                     Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
-                    Log.w("path of image from gallery......******************.........", picturePath + "");
+                    //Log.w("path of im.", picturePath + "");
                     savebitmap(thumbnail);
                     artImage.setImageBitmap(thumbnail);
                 }
@@ -897,8 +654,12 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             categories[i][1]="";
         }
         Initilization.addOnList.clear();
+        Initilization.addOnListTOCompare.clear();
+        Initilization.getAddOnListRSSID.clear();
         for (int i = 0; i < 20; i++) {
             Initilization.addOnList.add("");
+            Initilization.addOnListTOCompare.add("");
+            Initilization.getAddOnListRSSID.add("");
         }
 
         int index=0;
@@ -961,14 +722,18 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             }catch (Exception ee){}
             if(cuDispOrder==0){
             }
-            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder!=0){
                 Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(cuDispOrder,Initilization.resultArray[i][Initilization.RSSUrlId]);
+                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.CategoryId]);
             }
-            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder==0){
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(Initilization.resultArray[i][Initilization.RSSUrlId]);
+                Initilization.addOnListTOCompare.add(Initilization.resultArray[i][Initilization.CategoryId]);
             }
-            categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
-            categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
+            //categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
+            //categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
         }
 
@@ -979,12 +744,13 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         for(int i=0;i<Initilization.addOnList.size();){
             if(Initilization.addOnList.get(i).length()<2) {
                 Initilization.addOnList.remove(i);
+                Initilization.getAddOnListRSSID.remove(i);
                 i--;
             }
             i++;
         }
-
-        for(int i=0;i<1000;i++) {
+        Initilization.addOnListTOCompare.clear();
+        /*for(int i=0;i<1000;i++) {
             if(categories[i][0].isEmpty())
                 continue;
             for(int j=0;j<100;j++){
@@ -1000,7 +766,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 continue;
             } else
                 Initilization.newsCategoryLength++;
-        }
+        }*/
     }
 
     class GetCategoryList extends AsyncTask<Void,Void,Void>

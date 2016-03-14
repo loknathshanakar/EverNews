@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import org.jibble.simpleftp.SimpleFTP;
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -147,7 +148,7 @@ public class AddTabNewsPreview extends DialogFragment {
                         try {
                             publishProgress(1);
                             Initilization.androidId = android.provider.Settings.Secure.getString(getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-                            String xmlUrl = "http://rssapi.psweb.in//everapi.asmx/AddNewsTAB?RSSID="+RSSUID.replace(" ","")+"&AndroidId="+Initilization.androidId;
+                            String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/AddNewsTAB?RSSID="+RSSUID.replace(" ","")+"&AndroidId="+Initilization.androidId;
                             JsoupResopnse= Jsoup.connect(xmlUrl).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
                             if(!JsoupResopnse.contains("<int xmlns=\"http://tempuri.org/\">1</int>")){
                                 ExceptionCode=2;//Add failure but not connection
@@ -187,19 +188,29 @@ public class AddTabNewsPreview extends DialogFragment {
 
     public List<ItemObject> parseResults(String response)
     {
+       /*org.jsoup.nodes.Document doc2 = Jsoup.parse(response, "", Parser.xmlParser());
+        for ( org.jsoup.nodes.Element e : doc2.select("NewsImage")) {
+            System.out.println(e.text());
+        }*/
+
         List<ItemObject> items = new ArrayList<>();
         XMLDOMParser parser = new XMLDOMParser();
         InputStream stream = new ByteArrayInputStream(response.getBytes());
         Document doc = parser.getDocument(stream);
-        NodeList nodeList = doc.getElementsByTagName("Table");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Element e = (Element) nodeList.item(i);
-            String NewsImage = (parser.getValue(e, "NewsImage"));
-            String NewsTitle = (parser.getValue(e, "NewsTitle"));
-            String RSSTitle = (parser.getValue(e, "RSSTitle"));
-            String NewsId = (parser.getValue(e, "NewsId"));
-            String CATID = (parser.getValue(e, "RSSUrlId"));
-            items.add(new ItemObject(NewsImage, NewsTitle, RSSTitle, NewsId,CATID));
+        NodeList nodeList=null;
+        try {
+            nodeList = doc.getElementsByTagName("Table");
+        }catch (Exception e){}
+        if(nodeList!=null) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element e = (Element) nodeList.item(i);
+                String NewsImage = (parser.getValue(e, "NewsImage"));
+                String NewsTitle = (parser.getValue(e, "NewsTitle"));
+                String RSSTitle = (parser.getValue(e, "RSSTitle"));
+                String NewsId = (parser.getValue(e, "NewsId"));
+                String CATID = (parser.getValue(e, "RSSUrlId"));
+                items.add(new ItemObject(NewsImage, NewsTitle, RSSTitle, NewsId, CATID));
+            }
         }
         return (items);
     }
