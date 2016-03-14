@@ -95,7 +95,7 @@ public class CustomAdapter extends BaseAdapter {
                     }
                 });*/
 
-        Glide.with(context).load(listStorage.get(position).getNewsImage()).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.mipmap.news).error(R.mipmap.news).crossFade().into(listViewHolder.thumbnail);
+        Glide.with(context).load(listStorage.get(position).getNewsImage()).diskCacheStrategy(DiskCacheStrategy.ALL).skipMemoryCache(true).placeholder(R.mipmap.news).error(R.mipmap.news).into(listViewHolder.thumbnail);
         listViewHolder.source.setText(listStorage.get(position).getnewsName());
         listViewHolder.title.setText(listStorage.get(position).getnewsTitle());
         return convertView;

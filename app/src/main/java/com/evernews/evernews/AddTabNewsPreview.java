@@ -1,6 +1,8 @@
 package com.evernews.evernews;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -44,6 +46,7 @@ public class AddTabNewsPreview extends DialogFragment {
         void onRemove(AddTabNewsPreview dialog);
     }
 
+    private static SharedPreferences sharedpreferences;
     private static AddListener listener;
     public AddTabNewsPreview setListener(AddListener listener) {
         AddTabNewsPreview.listener = listener;
@@ -66,6 +69,7 @@ public class AddTabNewsPreview extends DialogFragment {
         List <ItemObject> tempItems = parseResultsEmpty();
         CustomAdapter customAdapter = new CustomAdapter(getActivity(), tempItems);
         gridView.setAdapter(customAdapter);
+        sharedpreferences = getActivity().getSharedPreferences(Main.USERLOGINDETAILS, Context.MODE_PRIVATE);
         new AsyncTask<Void, Void, String>() {
             int ExceptionCode=0;    //Sucess
             String returnContent="";
@@ -158,6 +162,8 @@ public class AddTabNewsPreview extends DialogFragment {
                     protected void onPostExecute(String link) {
                         progressdlg.dismiss();
                         if(ExceptionCode==0) {
+                            SharedPreferences.Editor editor = sharedpreferences.edit();
+                            editor.putBoolean(Main.NEWCHANNELADDED, true);
                             Snackbar snackbar = Snackbar.make(add, "News added successfully...", Snackbar.LENGTH_LONG);
                             snackbar.show();
                         }

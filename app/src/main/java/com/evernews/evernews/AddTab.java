@@ -1,8 +1,10 @@
 package com.evernews.evernews;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,6 +26,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
+
 public class AddTab extends AppCompatActivity {
 
     /**
@@ -40,7 +52,6 @@ Context context;
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +59,7 @@ Context context;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -56,11 +67,12 @@ Context context;
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setLogo(R.drawable.logo);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
-
+        //getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
         context=this;
+        if(Main.validCategory==false)
+            new GetCategoryList().execute();
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         for (int i = 0; i < Initilization.addOnList.size(); i++) {
@@ -206,6 +218,92 @@ Context context;
                     return "Categories";
             }
             return null;
+        }
+    }
+
+    class GetCategoryList extends AsyncTask<Void,Integer,Void>
+    {
+        ProgressDialog progressDlg;
+        String content;
+        int ExceptionCode=0;
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            if(progress[0]==1){
+                progressDlg.setTitle("Downloading");
+                progressDlg.setMessage("Downloading data...");
+            }
+            if(progress[0]==2){
+                progressDlg.setTitle("Formatting");
+                progressDlg.setMessage("Formatting data...");
+            }
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            progressDlg = ProgressDialog.show(context, "Connecting", "Please wait while we connect to our servers", true);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            try
+            {
+                publishProgress(1);
+                String fetchLink="http://rssapi.psweb.in/everapi.asmx/GetNewsChannelList";//Over ride but should be Main.androidId
+                content= Jsoup.connect(fetchLink).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
+                if(content.length()>50)
+                    publishProgress(2);
+            }
+            catch(Exception e)
+            {
+                if(e instanceof SocketTimeoutException) {
+                    ExceptionCode=1;
+                    return null;
+                }
+                if(e instanceof HttpStatusException) {
+                    ExceptionCode=2;
+                    return null;
+                }
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            if(content!=null)
+            {
+                String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
+                // Log.d("response", result);
+                //after getting the response we have to parse it
+                parseResultsList(result);
+            }
+            progressDlg.dismiss();
+            super.onPostExecute(aVoid);
+        }
+    }
+
+    public void parseResultsList(String response)
+    {
+        XMLDOMParser parser = new XMLDOMParser();
+        InputStream stream = new ByteArrayInputStream(response.getBytes());
+        Document doc = parser.getDocument(stream);
+        NodeList nodeList = doc.getElementsByTagName("Table");
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Element e = (Element) nodeList.item(i);
+            Main.catListArray[i][0] = (parser.getValue(e, "RSSUrlId"));
+            Main.catListArray[i][1] = (parser.getValue(e, "RSSURL"));
+            Main.catListArray[i][2] = (parser.getValue(e, "RSSTitle"));
+            Main.catListArray[i][3] = (parser.getValue(e, "Detail"));
+            Main.catListArray[i][4] = (parser.getValue(e, "Comment"));
+            Main.catListArray[i][5] = (parser.getValue(e, "MediaHouse"));
+            Main.catListArray[i][6] = (parser.getValue(e, "NewsType"));
+            Main.validCategory=true;
         }
     }
 }

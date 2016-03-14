@@ -4,11 +4,13 @@ package com.evernews.evernews;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -86,16 +88,17 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
      */
     public static ProgressBar progress=null;
     private ViewPager mViewPager;
-    private final String USERLOGINDETAILS = "USERLOGINDETAILS" ;
+    public static final String USERLOGINDETAILS = "USERLOGINDETAILS" ;
     private static SharedPreferences sharedpreferences;
     public static String uniqueID="";
-
+    SQLiteDatabase db;
     public static String USERNAME="USERNAME";
     public static String USERID="USERID";
     public static String USEREMAIL="USEREMAIL";
     public static String USERPHONENUMBER="USERPHONENUMBER";
     public static String ISREGISTRED="ISREGISTRED";
     public static String LOGGEDIN="LOGGEDIN";
+    public static String NEWCHANNELADDED="NEWCHANNELADDED";
     Context context;
     public void onFragmentInteraction(Uri uri){
         //you can leave it empty
@@ -119,7 +122,6 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         if(validCategory==false)
             new GetCategoryList().execute();
         sharedpreferences = getSharedPreferences(USERLOGINDETAILS, Context.MODE_PRIVATE);
-
         //tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -778,15 +780,17 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 //after getting the response we have to parse it
                 parseResults(result);
                 Toast.makeText(getApplicationContext(),"Refreshing done",Toast.LENGTH_SHORT).show();
-                Intent intent = getIntent();
+                progress.setVisibility(View.GONE);
+                /*Intent intent = getIntent();
                 finish();
-                startActivity(intent);
+                startActivity(intent);*/
+                recreate();
             }
             progress.setVisibility(View.GONE);
             super.onPostExecute(aVoid);
         }
     }
-    public void parseResults(String response)
+    public void parseResults_TEMp(String response)
     {
         int totalTabs=2;
         Initilization.addOnList.clear();
@@ -806,7 +810,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         int index=0;
         String currentNewsCategory="";
         Initilization.newsCategories[1][1]="EverYou";
-        Initilization.newsCategories[2][1]="YourView";
+        Initilization.newsCategories[2][1]="YouView";
         Initilization.newsCategories[1][0]="999";
         Initilization.newsCategories[2][0]="999";
         XMLDOMParser parser = new XMLDOMParser();
@@ -849,7 +853,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         }
 
         Initilization.addOnList.add(2, "EverYou");
-        Initilization.addOnList.add(3,"YourView");
+        Initilization.addOnList.add(3,"YouView");
         for(int i=0;i<Initilization.addOnList.size();){
             if(Initilization.addOnList.get(i).length()<2) {
                 Initilization.addOnList.remove(i);
@@ -877,6 +881,128 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         recreate();
     }
 
+
+    public void parseResults(String response)
+    {
+        ContentValues values = new ContentValues();
+        String path=Initilization.DB_PATH+Initilization.DB_NAME;
+        db= SQLiteDatabase.openDatabase(path, null, 0);
+        String categories[][]=new String[1000][2];
+        for(int i=0;i<100;i++){
+            Initilization.newsCategories[i][0]="";
+            Initilization.newsCategories[i][1]="";
+        }
+        for(int i=0;i<1000;i++){
+            categories[i][0]="";
+            categories[i][1]="";
+        }
+        Initilization.addOnList.clear();
+        for (int i = 0; i < 20; i++) {
+            Initilization.addOnList.add("");
+        }
+
+        int index=0;
+        String currentNewsCategory="";
+        Initilization.newsCategories[1][1]="EverYou";
+        Initilization.newsCategories[2][1]="YouView";
+        Initilization.newsCategories[1][0]="999";
+        Initilization.newsCategories[2][0]="999";
+        XMLDOMParser parser = new XMLDOMParser();
+        InputStream stream = new ByteArrayInputStream(response.getBytes());
+        Document doc = parser.getDocument(stream);
+        NodeList nodeList = doc.getElementsByTagName("Table");
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Element e = (Element) nodeList.item(i);
+            Initilization.resultArray[i][Initilization.CategoryId] = (parser.getValue(e, "CategoryId"));
+            values.put(Initilization.CATEGORYID, Initilization.resultArray[i][Initilization.CategoryId]);             //lets add data to database
+
+            Initilization.resultArray[i][Initilization.Category] = (parser.getValue(e, "Category"));
+            values.put(Initilization.CATEGORYNAME, Initilization.resultArray[i][Initilization.Category]);
+
+            Initilization.resultArray[i][Initilization.DisplayOrder] = (parser.getValue(e, "DisplayOrder"));
+            values.put(Initilization.DISPLAYORDER, Initilization.resultArray[i][Initilization.DisplayOrder]);
+
+            Initilization.resultArray[i][Initilization.RSSTitle] = (parser.getValue(e, "RSSTitle"));
+            values.put(Initilization.RSSTITLE, Initilization.resultArray[i][Initilization.RSSTitle]);
+
+            Initilization.resultArray[i][Initilization.RSSURL] = (parser.getValue(e, "RSSURL"));
+            values.put(Initilization.RSSURL_DB, Initilization.resultArray[i][Initilization.RSSURL]);
+
+            Initilization.resultArray[i][Initilization.RSSUrlId] = (parser.getValue(e, "RSSUrlId"));
+            values.put(Initilization.RSSURLID, Initilization.resultArray[i][Initilization.RSSUrlId]);
+
+            Initilization.resultArray[i][Initilization.NewsId] = (parser.getValue(e, "NewsId"));
+            values.put(Initilization.NEWSID, Initilization.resultArray[i][Initilization.NewsId]);
+
+            Initilization.resultArray[i][Initilization.NewsTitle] = (parser.getValue(e, "NewsTitle"));
+            values.put(Initilization.NEWSTITLE, Initilization.resultArray[i][Initilization.NewsTitle]);
+
+            Initilization.resultArray[i][Initilization.Summary] = (parser.getValue(e, "Summary"));
+            values.put(Initilization.SUMMARY, Initilization.resultArray[i][Initilization.Summary]);
+
+            Initilization.resultArray[i][Initilization.NewsImage] = (parser.getValue(e, "NewsImage"));
+            values.put(Initilization.NEWSIMAGE, Initilization.resultArray[i][Initilization.NewsImage]);
+
+            Initilization.resultArray[i][Initilization.NewsDate] = (parser.getValue(e, "NewsDate"));
+            values.put(Initilization.NEWSDATE, Initilization.resultArray[i][Initilization.NewsDate]);
+
+            Initilization.resultArray[i][Initilization.NewsDisplayOrder] = (parser.getValue(e, "NewsDisplayOrder"));
+            values.put(Initilization.NEWSDISPLAYORDER, Initilization.resultArray[i][Initilization.NewsDisplayOrder]);
+
+            Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
+            values.put(Initilization.CATEGORYORNEWS, Initilization.resultArray[i][Initilization.CategoryorNews]);
+            currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
+            db.insert(Initilization.TABLE_NAME, null, values);
+
+            int cuDispOrder=0;
+            try {
+                cuDispOrder = Integer.parseInt(currentNewsCategory);
+            }catch (Exception ee){}
+            if(cuDispOrder==0){
+            }
+            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+                Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+            }
+            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+                Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+            }
+            categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
+            categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
+            Initilization.resultArrayLength=i;
+        }
+
+        db.close(); // Closing database connection
+
+        Initilization.addOnList.add(2, "EverYou");
+        Initilization.addOnList.add(3,"YouView");
+        for(int i=0;i<Initilization.addOnList.size();){
+            if(Initilization.addOnList.get(i).length()<2) {
+                Initilization.addOnList.remove(i);
+                i--;
+            }
+            i++;
+        }
+
+        for(int i=0;i<1000;i++) {
+            if(categories[i][0].isEmpty())
+                continue;
+            for(int j=0;j<100;j++){
+                if(Initilization.newsCategories[j][0].isEmpty() &&(i-1)>=0){        //cat id can never be 0
+                    Initilization.newsCategories[j][0]=categories[i][0];
+                    Initilization.newsCategories[j][1]=categories[i][1];
+                    break;
+                }
+            }
+        }
+        for(int i=0;i<100;i++) {
+            if (Initilization.newsCategories[i][0].isEmpty()) {        //cat id can never be 0
+                continue;
+            } else
+                Initilization.newsCategoryLength++;
+        }
+    }
+
     class GetCategoryList extends AsyncTask<Void,Void,Void>
     {
         String content;
@@ -884,7 +1010,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         @Override
         protected void onPreExecute()
         {
-            progress.setVisibility(View.VISIBLE);
+            //progress.setVisibility(View.VISIBLE);
             super.onPreExecute();
         }
 
@@ -921,7 +1047,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 //after getting the response we have to parse it
                 parseResultsList(result);
             }
-            progress.setVisibility(View.GONE);
+            //progress.setVisibility(View.GONE);
             super.onPostExecute(aVoid);
         }
     }

@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,7 +96,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
     Button fbSignup ; //= (Button) getActivity().findViewById(R.id.facebook);
     Button gSignup; // = (Button) getActivity().findViewById(R.id.google);
     Button twittersignup;
-    Spinner mSpinner;
+    EditText mSpinner;
     Pattern emailPattern;
     Account[] accounts;
     public static SignUp newInstance(String param1) {
@@ -206,14 +207,14 @@ public class SignUp extends Fragment implements View.OnClickListener{
         twittersignup.setOnClickListener(this);
         fbSignup = (Button) view.findViewById(R.id.facebook_normal);
         fbSignup.setOnClickListener(this);
-        mSpinner = (Spinner) view.findViewById(R.id.spinner);
+        mSpinner = (EditText) view.findViewById(R.id.spinner);
 
-        //Fill spinner
+        /*//Fill spinner
         String[] arraySpinner=new String[] {
                 "Select your city", "Delhi", "Mumbai", "Bangalore", "One more city"
         };
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, arraySpinner);
-        mSpinner.setAdapter(adapter);
+        mSpinner.setAdapter(adapter);*/
         return view;
     }
 
@@ -232,7 +233,8 @@ public class SignUp extends Fragment implements View.OnClickListener{
                     boolean validNumber = isValidNumber(pnumbers);
                     boolean validUsername = isValidName(userNames);
                     boolean validPassword = isValidPassword(passWord);
-                    int validSpinner=mSpinner.getSelectedItemPosition();
+                    boolean validCity=false;
+                    int validSpinner=mSpinner.getText().toString().length();
                     if (validUsername == false)
                         errorString = errorString + ">Invalid Username (6 Char min)\r\n";
                     if (validEmail == false)
@@ -245,10 +247,13 @@ public class SignUp extends Fragment implements View.OnClickListener{
                         validPassword=false;
                         errorString = errorString + ">Passwords do not match!\r\n";
                     }
-                    if(validSpinner<=0){
-                        errorString = errorString + ">City not selected\r\n";
+                    if(validSpinner<=2){
+                        errorString = errorString + ">City not entered\r\n";
+                        validCity=false;
+                    }else{
+                        validCity=true;
                     }
-                    if (validEmail == true && validNumber == true && validUsername == true && validPassword == true) {
+                    if (validEmail == true && validNumber == true && validUsername == true && validPassword == true && validCity==true) {
                         //Post details to server
                         Initilization.androidId = android.provider.Settings.Secure.getString(getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
                         String urlStr="http://rssapi.psweb.in/everapi.asmx/RegisterUser?FullName=" + userNames + "&Email=" + emails + "&Password=" + passWord + "&Mobile=" + pnumbers + "&AndroidId=" + Initilization.androidId;
@@ -316,6 +321,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                     userNumber.setText("");
                                     password.setText("");
                                     comfirmpassword.setText("");
+                                    mSpinner.setText("");
                                     Main.progress.setVisibility(View.GONE);
                                 } else
                                     Toast.makeText(getContext(), "Please check the filled details", Toast.LENGTH_SHORT).show();
@@ -390,7 +396,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
     }
 
     public boolean isValidPassword(String inString){
-        if(inString.length()>=7)
+        if(inString.length()>=6)
             return (true);
         else
             return (false);

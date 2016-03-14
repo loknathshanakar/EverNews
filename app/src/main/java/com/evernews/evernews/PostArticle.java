@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -66,7 +67,7 @@ public class PostArticle extends Fragment implements View.OnClickListener{
     private static SharedPreferences sharedpreferences;
     public static String uniqueID="";
     private OnFragmentInteractionListener mListener;
-    Spinner mSpinner;
+    EditText mSpinner;
     public PostArticle() {
         // Required empty public constructor
     }
@@ -111,13 +112,13 @@ public class PostArticle extends Fragment implements View.OnClickListener{
         post=(TextView)view.findViewById(R.id.post);
         viewImage=(ImageView)view.findViewById(R.id.viewImage);
         sharedpreferences = getActivity().getSharedPreferences(USERLOGINDETAILS, Context.MODE_PRIVATE);
-        mSpinner = (Spinner) view.findViewById(R.id.spinner_post);
+        mSpinner = (EditText) view.findViewById(R.id.spinner_post);
         //Fill spinner
-        String[] arraySpinner=new String[] {
+        /*String[] arraySpinner=new String[] {
                 "Select your city", "Delhi", "Mumbai", "Bangalore", "One more city"
         };
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, arraySpinner);
-        mSpinner.setAdapter(adapter);
+        mSpinner.setAdapter(adapter);*/
         return view;
         //return inflater.inflate(R.layout.fragment_post_article, container, false);
     }
@@ -130,7 +131,7 @@ public class PostArticle extends Fragment implements View.OnClickListener{
                     final String articleTitle=title.getText().toString();
                     final String articleContent=post.getText().toString();
                     final String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
-                    if(articleTitle.length()<8 || articleContent.length()<20 || mSpinner.getSelectedItemPosition()<=0){
+                    if(articleTitle.length()<8 || articleContent.length()<20 || mSpinner.getText().toString().length()<=2){
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setMessage("Article title or content does not meet the required specification")
                                 .setCancelable(false)
@@ -283,6 +284,7 @@ public class PostArticle extends Fragment implements View.OnClickListener{
                                         viewImage.setImageResource(R.mipmap.camera2);
                                         title.setText("");
                                         post.setText("");
+                                        mSpinner.setText("");
                                         Main.progress.setVisibility(View.GONE);
                                         progressdlg.dismiss();
                                     }

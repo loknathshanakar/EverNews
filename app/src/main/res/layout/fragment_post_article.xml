@@ -15,10 +15,11 @@
         android:textSize="22sp"
         android:textColor="#9e9e9e"
         android:gravity="center"/>
-    <Spinner
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
+        android:hint="Your city"
         android:id="@+id/spinner_post"
         android:layout_below="@+id/title"
         android:layout_gravity="center_horizontal"

@@ -297,7 +297,6 @@ public class ReusableFragment extends Fragment {
                 }catch (Exception e){e.printStackTrace();}
                 if(categoryId>1)
                     categoryId= categoryId+2;*/
-                //try {
                     if (tabName.compareTo(Initilization.resultArray[j][Initilization.Category]) == 0) {
                         String par1 = Initilization.resultArray[j][Initilization.NewsImage];
                         String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
@@ -313,7 +312,6 @@ public class ReusableFragment extends Fragment {
                             }
                         }
                     }
-                //}catch(Exception e){}
             }
         }
         return items;
