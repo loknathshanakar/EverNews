@@ -1,8 +1,15 @@
 package com.evernews.evernews;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +25,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Toast;
+
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
+
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
@@ -26,8 +39,10 @@ import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,13 +52,25 @@ public class ReusableFragment extends Fragment {
     private static final String TAB_NAME = "tab_name";
     private static  String asyncCatId="";
     private static  String asyncNewsId="";
+    CallbackManager callbackManager;
+    ShareDialog shareDialog;
+    String newsTitle;
+    String newsLink;
+    Context context;
     List<ItemObject> asyncitems = new ArrayList<>();
     Button btn;
     private int refrenceCounter=0;
     public ReusableFragment() {
     }
 
-   public static ReusableFragment newInstanceRe(int sectionNumber,String tabName) {
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    public static ReusableFragment newInstanceRe(int sectionNumber,String tabName) {
         Bundle args = new Bundle();
         args.putSerializable(TYPE_KEY, sectionNumber);
         args.putSerializable(TAB_NAME, tabName);
@@ -56,6 +83,7 @@ public class ReusableFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final GridView gridView = (GridView)rootView.findViewById(R.id.gridview);
+        context=getContext();
         //btn=(Button)getActivity().findViewById(R.id.loadmore);
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             gridView.setNumColumns(4);
@@ -75,25 +103,24 @@ public class ReusableFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(getActivity(), "Position: " + position, Toast.LENGTH_SHORT).show();
-                final String newsID=itemCollection.get(position).getNewsID();
-                if(newsID==null || newsID.isEmpty()) {
+                final String newsID = itemCollection.get(position).getNewsID();
+                if (newsID == null || newsID.isEmpty()) {
                     try {
                         wait(200);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                     }
                 }
                 final Intent i = new Intent(getActivity().getBaseContext(), ViewNews.class);
-                if(newsID==null)
-                    i.putExtra("NEWS_ID", newsID+"");
+                if (newsID == null)
+                    i.putExtra("NEWS_ID", newsID + "");
                 else
                     i.putExtra("NEWS_ID", newsID);
-                i.putExtra("CALLER","MAIN");
+                i.putExtra("CALLER", "MAIN");
                 i.putExtra("NEWS_TITLE", itemCollection.get(position).getnewsTitle());
                 i.putExtra("RSS_TITLE", itemCollection.get(position).getnewsName());
-                i.putExtra("FULL_TEXT",itemCollection.get(position).getFullText());
+                i.putExtra("FULL_TEXT", itemCollection.get(position).getFullText());
                 i.putExtra("NEWS_LINK", itemCollection.get(position).getNewsURL());
-                if(itemCollection.get(position).getFullText()!=null && itemCollection.get(position).getFullText().length()<15) {
+                if (itemCollection.get(position).getFullText() != null && itemCollection.get(position).getFullText().length() < 15) {
                     new AsyncTask<Void, Void, String>() {
                         String newsLink = "";
                         String source = "", title = "", news = "";
@@ -159,11 +186,16 @@ public class ReusableFragment extends Fragment {
             }
         });
 
+
+        FacebookSdk.sdkInitialize(getContext());
+        callbackManager = CallbackManager.Factory.create();
+        shareDialog = new ShareDialog(this);
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                final String newsTitle=itemCollection.get(position).getnewsTitle();
-                //Toast.makeText(getActivity(), "Long Clicked : " + position, Toast.LENGTH_SHORT).show();
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                newsTitle=itemCollection.get(position).getnewsTitle();
+                newsLink=itemCollection.get(position).getNewsURL();
+                final ShareLinkContent content = new ShareLinkContent.Builder().setContentUrl(Uri.parse("https://developers.facebook.com")).build();
                 AlertDialog.Builder builderSingle = new AlertDialog.Builder(getContext());
                 builderSingle.setIcon(R.drawable.ic_launcher);
                 builderSingle.setTitle(newsTitle);
@@ -171,15 +203,15 @@ public class ReusableFragment extends Fragment {
                 arrayAdapter.add("Facebook");
                 arrayAdapter.add("Twitter");
                 arrayAdapter.add("Email");
-                arrayAdapter.add("Share by other means");
                 arrayAdapter.add("Open in browser");
                 arrayAdapter.add("Copy link");
-                builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
+                arrayAdapter.add("Share by other means");
+                builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
 
                 builderSingle.setAdapter(
                         arrayAdapter,
@@ -187,7 +219,33 @@ public class ReusableFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String strName = arrayAdapter.getItem(which);
-                                Toast.makeText(getContext()," "+which,Toast.LENGTH_SHORT).show();
+                                switch (which) {
+                                    case 0:
+                                        if (ShareDialog.canShow(ShareLinkContent.class)) {
+                                            ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                                                    .setContentTitle(newsTitle)
+                                                    .setContentUrl(Uri.parse(newsLink))
+                                                    .build();
+                                            shareDialog.show(linkContent);
+                                        }
+                                        break;
+                                    case 1:
+                                        tweet();
+                                        break;
+                                    case 2:
+                                        sharebyMail();
+                                        break;
+                                    case 3:
+                                        openInBrowser();
+                                        break;
+                                    case 4: ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(context.CLIPBOARD_SERVICE);
+                                        ClipData clip = ClipData.newPlainText(newsTitle, newsLink);
+                                        clipboard.setPrimaryClip(clip);
+                                        Toast.makeText(getContext() == null ? context : context, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case 5:shareByOther();
+                                        break;
+                                }
                             }
                         });
                 builderSingle.show();
@@ -360,6 +418,9 @@ public class ReusableFragment extends Fragment {
     //Non reuse lol
     public void parseResults(String response)
     {
+        ContentValues values = new ContentValues();
+        String path=Initilization.DB_PATH+Initilization.DB_NAME;
+        SQLiteDatabase db= SQLiteDatabase.openDatabase(path, null, 0);
         XMLDOMParser parser = new XMLDOMParser();
         InputStream stream = new ByteArrayInputStream(response.getBytes());
         Document doc = parser.getDocument(stream);
@@ -368,23 +429,170 @@ public class ReusableFragment extends Fragment {
             nodeList = doc.getElementsByTagName("Table");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element e = (Element) nodeList.item(i);
-                String par1 = (parser.getValue(e, "NewsImage"));
-                String par2 = (parser.getValue(e, "NewsTitle"));
-                String par3 = (parser.getValue(e, "RSSTitle"));
-                String par4 = (parser.getValue(e, "NewsId"));
-                String par5 = (parser.getValue(e, "CategoryId"));
+
+
+                //Initilization.resultArray[i][Initilization.CategoryId] = (parser.getValue(e, "CategoryId"));
+                values.put(Initilization.CATEGORYID, parser.getValue(e, "CategoryId"));             //lets add data to database
+
+                //Initilization.resultArray[i][Initilization.Category] = (parser.getValue(e, "Category"));
+                values.put(Initilization.CATEGORYNAME, parser.getValue(e, "Category"));
+
+               // Initilization.resultArray[i][Initilization.DisplayOrder] = (parser.getValue(e, "DisplayOrder"));
+                values.put(Initilization.DISPLAYORDER, parser.getValue(e, "DisplayOrder"));
+
+                //Initilization.resultArray[i][Initilization.RSSTitle] = (parser.getValue(e, "RSSTitle"));
+                values.put(Initilization.RSSTITLE, parser.getValue(e, "RSSTitle"));
+
+                //Initilization.resultArray[i][Initilization.RSSURL] = (parser.getValue(e, "RSSURL"));
+                values.put(Initilization.RSSURL_DB, parser.getValue(e, "RSSURL"));
+
+                //Initilization.resultArray[i][Initilization.RSSUrlId] = (parser.getValue(e, "RSSUrlId"));
+                values.put(Initilization.RSSURLID, parser.getValue(e, "RSSUrlId"));
+
+                //Initilization.resultArray[i][Initilization.NewsId] = (parser.getValue(e, "NewsId"));
+                values.put(Initilization.NEWSID, parser.getValue(e, "NewsId"));
+
+                //Initilization.resultArray[i][Initilization.NewsTitle] = (parser.getValue(e, "NewsTitle"));
+                values.put(Initilization.NEWSTITLE, parser.getValue(e, "NewsTitle"));
+
+                //Initilization.resultArray[i][Initilization.Summary] = (parser.getValue(e, "Summary"));
+                values.put(Initilization.SUMMARY, parser.getValue(e, "Summary"));
+
+                //Initilization.resultArray[i][Initilization.NewsImage] = (parser.getValue(e, "NewsImage"));
+                values.put(Initilization.NEWSIMAGE, parser.getValue(e, "NewsImage"));
+
+               // Initilization.resultArray[i][Initilization.NewsDate] = (parser.getValue(e, "NewsDate"));
+                values.put(Initilization.NEWSDATE, parser.getValue(e, "NewsDate"));
+
+                //Initilization.resultArray[i][Initilization.NewsDisplayOrder] = (parser.getValue(e, "NewsDisplayOrder"));
+                values.put(Initilization.NEWSDISPLAYORDER, parser.getValue(e, "NewsDisplayOrder"));
+
+                //Initilization.resultArray[i][Initilization.FullText] = (parser.getValue(e, "FullText"));
+                values.put(Initilization.FULLTEXT, parser.getValue(e, "FullText"));
+
+                //Initilization.resultArray[i][Initilization.NewsUrl] = (parser.getValue(e, "NewsURL"));
+                values.put(Initilization.NEWSURL, parser.getValue(e, "NewsURL"));
+
+               // Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
+                values.put(Initilization.CATEGORYORNEWS, parser.getValue(e, "CategoryorNews"));
+
+
+
+                String NewsImage = (parser.getValue(e, "NewsImage"));
+                //values.put(Initilization.NEWSIMAGE, NewsImage);             //lets add data to database
+
+                String NewsTitle = (parser.getValue(e, "NewsTitle"));
+                //values.put(Initilization.NEWSTITLE, NewsTitle);
+
+                String RSSTitle = (parser.getValue(e, "RSSTitle"));
+                //values.put(Initilization.RSSTITLE, RSSTitle);
+
+                String NewsId = (parser.getValue(e, "NewsId"));
+                //values.put(Initilization.NEWSID, NewsId);
+
+                String CategoryId = (parser.getValue(e, "CategoryId"));
+                //values.put(Initilization.CATEGORYID, CategoryId);
+
                 String FullText = (parser.getValue(e, "FullText"));
-                String NewsURL = (parser.getValue(e, "NewsURL"));
-                asyncitems.add(new ItemObject(par1, par2, par3, par4,par5,FullText,NewsURL));
+                //values.put(Initilization.FULLTEXT, FullText);
+
+                String NewsUrl = (parser.getValue(e, "NewsURL"));
+                //values.put(Initilization.NEWSURL, NewsUrl);
+
+                db.insert(Initilization.TABLE_NAME, null, values);
+
+                asyncitems.add(new ItemObject(NewsImage, NewsTitle, RSSTitle, NewsId,CategoryId,FullText,NewsUrl));
                 for(int k=0;k<itemCollection.size();k++){
-                    if(itemCollection.get(k).getNewsID().compareTo(par4)==0){
+                    if(itemCollection.get(k).getNewsID().compareTo(NewsId)==0){
                         asyncitems.remove(asyncitems.size()-1);
                     }
                 }
             }
+
         }
         catch (Exception e){
             Toast.makeText(getContext(),"Exception found,news wont load",Toast.LENGTH_SHORT).show();
+        }finally {
+            db.close();
         }
     }
+
+
+    public void tweet() {
+        try {
+            String tweetUrl =
+                    String.format("https://twitter.com/intent/tweet?text=%s&url=%s",
+                            urlEncode(newsTitle), urlEncode(newsLink));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweetUrl));
+
+            List<ResolveInfo> matches = ((getContext() == null ? getContext() : getContext())).getPackageManager().queryIntentActivities(intent, 0);
+            boolean exists = false;
+            for (ResolveInfo info : matches) {
+                if (info.activityInfo.packageName.toLowerCase().startsWith("com.twitter")) {
+                    exists = true;
+                    intent.setPackage(info.activityInfo.packageName);
+                }
+            }
+            if (!exists) {
+                Toast.makeText(getContext() == null ? getContext() : getContext(), "Twitter not found", Toast.LENGTH_SHORT).show();
+                Intent tweet = new Intent(Intent.ACTION_VIEW);
+                tweet.setData(Uri.parse("http://twitter.com/?status=" + Uri.encode(newsLink)));//where message is your string message
+                startActivity(tweet);
+            }
+            else {
+                if (context == null)
+                    context.startActivity(intent);
+                else context.startActivity(intent);
+            }
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public static String urlEncode(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.wtf("TAG", "UTF-8 should always be supported", e);
+            throw new RuntimeException("URLEncoder.encode() failed for " + s);
+        }
+    }
+
+    public void openInBrowser() {
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(newsLink));
+            if (context == null)
+                startActivity(i);
+            else
+                (context).startActivity(i);
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void shareByOther() {
+        try {
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, newsLink);
+            startActivity(Intent.createChooser(sharingIntent, getResources().getString(R.string.share_using)));
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void sharebyMail() {
+        try {
+            Intent gmail = new Intent(Intent.ACTION_VIEW);
+            gmail.setType("plain/text");
+            gmail.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
+            gmail.putExtra(Intent.EXTRA_SUBJECT, newsTitle);
+            gmail.putExtra(Intent.EXTRA_TEXT, newsLink);
+            if (getContext() != null) {
+                getContext().startActivity(gmail);
+                return;
+            }
+            startActivity(gmail);
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext() == null ? getContext() : getContext(), "Gmail client not found \nUse Share by other ", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
 }

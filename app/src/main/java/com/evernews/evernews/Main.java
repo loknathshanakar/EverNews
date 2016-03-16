@@ -11,7 +11,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -91,11 +93,11 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     TabLayout tabLayout;
     LinearLayout tabStrip;
     Context context;
+    View virtualView;
     int mandetTab=10;
     public void onFragmentInteraction(Uri uri){
         //you can leave it empty
     }
-
     private boolean initialTabs(){
         int offset=0;
         try {
@@ -108,8 +110,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     tvt.setGravity(Gravity.CENTER_VERTICAL);
                     tabLayout.getTabAt(i).setCustomView(v);
                     tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color1);
-                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                    tabLayout.setSelectedTabIndicatorHeight(5);
+                    //tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_1_color));
+                    //tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((offset % 5) == 1) {
                     View v = View.inflate(context, R.layout.layout_tab_2, null);
@@ -118,8 +120,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     tvt.setGravity(Gravity.CENTER);
                     tabLayout.getTabAt(i).setCustomView(v);
                     tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
-                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                    tabLayout.setSelectedTabIndicatorHeight(5);
+                    //tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_2_color));
+                    //tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((offset % 5) == 2) {
                     View v = View.inflate(context, R.layout.layout_tab_3, null);
@@ -128,8 +130,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     tvt.setGravity(Gravity.CENTER);
                     tabLayout.getTabAt(i).setCustomView(v);
                     tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
-                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                    tabLayout.setSelectedTabIndicatorHeight(5);
+                    //tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_3_color));
+                    //tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((offset % 5) == 3) {
                     View v = View.inflate(context, R.layout.layout_tab_4, null);
@@ -138,8 +140,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     tvt.setGravity(Gravity.CENTER);
                     tabLayout.getTabAt(i).setCustomView(v);
                     tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color4);
-                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                    tabLayout.setSelectedTabIndicatorHeight(5);
+                    //tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_4_color));
+                    //tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((offset % 5) == 4) {
                     View v = View.inflate(context, R.layout.layout_tab_5, null);
@@ -148,8 +150,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     tvt.setGravity(Gravity.CENTER);
                     tabLayout.getTabAt(i).setCustomView(v);
                     tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color5);
-                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                    tabLayout.setSelectedTabIndicatorHeight(5);
+                    //tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                    //tabLayout.setSelectedTabIndicatorHeight(5);
                 }
             }
         }catch (Exception e){
@@ -193,37 +195,53 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         //mViewPager.setOffscreenPageLimit(1);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        tabLayout= (TabLayout)findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         initialTabs();
-
+        virtualView=(View) findViewById(R.id.virtual_tab);
+        virtualView.setBackgroundColor(getResources().getColor(R.color.tab_1_color));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
-                int x=tab.getPosition()+5;
+                int x = tab.getPosition() + 5;
                 if ((x % 5) == 0) {
                     int i = x - 5;
                     tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_1_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_1_color));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((x % 5) == 1) {
                     int i = x - 5;
                     tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color2);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_2_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_2_color));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((x % 5) == 2) {
                     int i = x - 5;
                     tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color3);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_3_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_3_color));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((x % 5) == 3) {
                     int i = x - 5;
                     tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color4);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_4_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_4_color));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 if ((x % 5) == 4) {
                     int i = x - 5;
                     tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color5);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_5_color));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
                 }
                 resetOtherTabs(x - 5);
             }
@@ -241,7 +259,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         tabStrip = (LinearLayout) tabLayout.getChildAt(0);
         int tabPos=tabLayout.getSelectedTabPosition();
         tabStrip.getChildAt(tabPos).setBackgroundResource(R.drawable.tab_color1);
-        for (int i = 0; i < tabStrip.getChildCount(); i++) {
+        /*for (int i = 0; i < tabStrip.getChildCount(); i++) {
             final int x = i+5;
             tabStrip.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -249,27 +267,37 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                     if ((x % 5) == 0) {
                         int i = x - 5;
                         tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1);
+                        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                        tabLayout.setSelectedTabIndicatorHeight(5);
                     }
                     if ((x % 5) == 1) {
                         int i = x - 5;
                         tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color2);
+                        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                        tabLayout.setSelectedTabIndicatorHeight(5);
                     }
                     if ((x % 5) == 2) {
                         int i = x - 5;
                         tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color3);
+                        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                        tabLayout.setSelectedTabIndicatorHeight(5);
                     }
                     if ((x % 5) == 3) {
                         int i = x - 5;
                         tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color4);
+                        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                        tabLayout.setSelectedTabIndicatorHeight(5);
                     }
                     if ((x % 5) == 4) {
                         int i = x - 5;
                         tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color5);
+                        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                        tabLayout.setSelectedTabIndicatorHeight(5);
                     }
                     resetOtherTabs(x-5);
                 }
             });
-        }
+        }*/
             for (int i = 0; i < tabStrip.getChildCount(); i++) {
             final int x=i;
             tabStrip.getChildAt(i).setOnLongClickListener(new View.OnLongClickListener() {

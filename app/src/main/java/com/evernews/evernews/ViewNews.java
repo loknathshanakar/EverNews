@@ -544,7 +544,7 @@ public class ViewNews extends AppCompatActivity {
                     }
                 }
             } else {
-                Toast.makeText(getContext(), "Sorry news not avaliable",Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(), "Sorry news not avaliable",Toast.LENGTH_LONG).show();
             }
             return rootView;
         }

@@ -35,6 +35,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Initilization extends AppCompatActivity {
     public static final int CategoryId = 0;
@@ -146,7 +147,7 @@ public class Initilization extends AppCompatActivity {
                     androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
                     String fetchLink = "http://rssapi.psweb.in/everapi.asmx/LoadXMLDefaultNews?AndroidId=" + androidId;//Over ride but should be Main.androidId
                     goCode=1;
-                    content = Jsoup.connect(fetchLink).ignoreContentType(true).timeout(timeout).execute().body();
+                    content = Jsoup.connect(fetchLink).ignoreContentType(true).timeout(timeout+timeout).execute().body();
                 } catch (Exception e) {
                     if (e instanceof SocketTimeoutException) {
                         ExceptionCode = 1;
@@ -194,6 +195,10 @@ public class Initilization extends AppCompatActivity {
                     offlineparseResults();
                     Intent main=new Intent(Initilization.this,Main.class);
                     startActivity(main);
+                    finish();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),"Please check your internet connection and try again",Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 super.onPostExecute(aVoid);
@@ -296,8 +301,6 @@ public class Initilization extends AppCompatActivity {
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
                 Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            //categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
-            //categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
         }
 
@@ -305,13 +308,7 @@ public class Initilization extends AppCompatActivity {
 
         Initilization.addOnList.add(2, "EverYou");
         Initilization.addOnList.add(3,"YouView");
-        for(int i=0;i<Initilization.addOnList.size();){
-            if(Initilization.addOnList.get(i).length()<2) {
-                Initilization.addOnList.remove(i);
-                i--;
-            }
-            i++;
-        }
+        Initilization.addOnList.removeAll(Arrays.asList(null, ""));
         Initilization.addOnListTOCompare.clear();
         /*for(int i=0;i<1000;i++) {
             if(categories[i][0].isEmpty())
@@ -355,6 +352,8 @@ public class Initilization extends AppCompatActivity {
         Initilization.addOnList.clear();
         for (int i = 0; i < 20; i++) {
             Initilization.addOnList.add("");
+            Initilization.addOnListTOCompare.add("");
+            Initilization.getAddOnListRSSID.add("");
         }
 
         int index=0;
@@ -421,15 +420,16 @@ public class Initilization extends AppCompatActivity {
             }catch (Exception ee){}
             if(cuDispOrder==0){
             }
-            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
                 Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            if(!Initilization.addOnList.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
-            categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
+
             try {
                 cur.moveToNext();
             }catch (Exception e){/*Index out of bounds*/}
@@ -439,15 +439,9 @@ public class Initilization extends AppCompatActivity {
 
         Initilization.addOnList.add(2, "EverYou");
         Initilization.addOnList.add(3,"YouView");
-        for(int i=0;i<Initilization.addOnList.size();){
-            if(Initilization.addOnList.get(i).length()<2) {
-                Initilization.addOnList.remove(i);
-                i--;
-            }
-            i++;
-        }
-
-        for(int i=0;i<1000;i++) {
+        Initilization.addOnList.removeAll(Arrays.asList(null, ""));
+        Initilization.addOnListTOCompare.clear();
+        /*for(int i=0;i<1000;i++) {
             if(categories[i][0].isEmpty())
                 continue;
             for(int j=0;j<100;j++){
@@ -463,7 +457,7 @@ public class Initilization extends AppCompatActivity {
                 continue;
             } else
                 Initilization.newsCategoryLength++;
-        }
+        }*/
     }
 }
 

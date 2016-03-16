@@ -66,6 +66,6 @@ public class XMLDOMParser {
                 }
             }
         }
-        return "NULL";
+        return "NODENULL";
     }
 }
