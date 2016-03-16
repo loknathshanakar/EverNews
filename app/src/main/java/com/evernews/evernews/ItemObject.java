@@ -8,12 +8,16 @@ public class ItemObject {
     private String newsName;
     private String newsID;
     private String categoryID;
-    public ItemObject(String newsImage, String newsTitle, String newsName,String newsID,String categoryID) {
+    private String fullText;
+    private String newsURL;
+    public ItemObject(String newsImage, String newsTitle, String newsName,String newsID,String categoryID,String fullText,String newsURL) {
         this.newsImage = newsImage;
         this.newsTitle = newsTitle;
         this.newsName = newsName;
         this.newsID = newsID;
         this.categoryID = categoryID;
+        this.fullText = fullText;
+        this.newsURL = newsURL;
     }
 
     public String getNewsImage() {
@@ -34,6 +38,14 @@ public class ItemObject {
 
     public String getCategoryID() {
         return categoryID;
+    }
+
+    public String getFullText() {
+        return fullText;
+    }
+
+    public String getNewsURL() {
+        return newsURL;
     }
 
 }

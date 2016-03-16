@@ -4,14 +4,16 @@
     android:thickness="0dp"
     android:shape="rectangle">
     <stroke android:width="1dp"
-        android:color="#00AA00"/>
+        android:color="@color/tab_3_color"/>
     <corners
-        android:topLeftRadius="10dp"
-        android:topRightRadius="10dp" />
+        android:topLeftRadius="@dimen/tab_bend_radius"
+        android:topRightRadius="@dimen/tab_bend_radius"
+        android:bottomLeftRadius="0dp"
+        android:bottomRightRadius="0dp"/>
 
     <gradient
-        android:startColor="#00AA00"
-        android:endColor="#00AA00"
+        android:startColor="@color/tab_3_color"
+        android:endColor="@color/tab_3_color"
         android:type="linear"
         android:angle="270"/>
 </shape>

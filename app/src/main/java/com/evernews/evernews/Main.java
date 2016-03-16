@@ -33,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -87,10 +88,85 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     public static String LOGGEDIN="LOGGEDIN";
     public static String NEWCHANNELADDED="NEWCHANNELADDED";
     ShareDialog shareDialog;
+    TabLayout tabLayout;
+    LinearLayout tabStrip;
     Context context;
     int mandetTab=10;
     public void onFragmentInteraction(Uri uri){
         //you can leave it empty
+    }
+
+    private boolean initialTabs(){
+        int offset=0;
+        try {
+            for (int i = 0; i < Initilization.addOnList.size(); i++) {
+                offset = i + 5;
+                if ((offset % 5) == 0) {
+                    View v = View.inflate(context, R.layout.layout_tab_1, null);
+                    TextView tvt = (TextView) v.findViewById(R.id.tab_tv_1);
+                    tvt.setText(Initilization.addOnList.get(i));
+                    tvt.setGravity(Gravity.CENTER_VERTICAL);
+                    tabLayout.getTabAt(i).setCustomView(v);
+                    tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color1);
+                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
+                }
+                if ((offset % 5) == 1) {
+                    View v = View.inflate(context, R.layout.layout_tab_2, null);
+                    TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
+                    tvt.setText(Initilization.addOnList.get(i));
+                    tvt.setGravity(Gravity.CENTER);
+                    tabLayout.getTabAt(i).setCustomView(v);
+                    tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
+                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
+                }
+                if ((offset % 5) == 2) {
+                    View v = View.inflate(context, R.layout.layout_tab_3, null);
+                    TextView tvt = (TextView) v.findViewById(R.id.tab_tv_3);
+                    tvt.setText(Initilization.addOnList.get(i));
+                    tvt.setGravity(Gravity.CENTER);
+                    tabLayout.getTabAt(i).setCustomView(v);
+                    tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
+                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
+                }
+                if ((offset % 5) == 3) {
+                    View v = View.inflate(context, R.layout.layout_tab_4, null);
+                    TextView tvt = (TextView) v.findViewById(R.id.tab_tv_4);
+                    tvt.setText(Initilization.addOnList.get(i));
+                    tvt.setGravity(Gravity.CENTER);
+                    tabLayout.getTabAt(i).setCustomView(v);
+                    tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color4);
+                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
+                }
+                if ((offset % 5) == 4) {
+                    View v = View.inflate(context, R.layout.layout_tab_5, null);
+                    TextView tvt = (TextView) v.findViewById(R.id.tab_tv_5);
+                    tvt.setText(Initilization.addOnList.get(i));
+                    tvt.setGravity(Gravity.CENTER);
+                    tabLayout.getTabAt(i).setCustomView(v);
+                    tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color5);
+                    tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
+                    tabLayout.setSelectedTabIndicatorHeight(5);
+                }
+            }
+        }catch (Exception e){
+            return(false);
+        }
+        return(true);
+    }
+
+    public void resetOtherTabs(int skipTab){
+        for (int i = 0; i < tabStrip.getChildCount(); i++) {
+            if(i==skipTab) {
+                continue;
+            }
+            else{
+                tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1_rised_uncolored);
+            }
+        }
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,65 +193,84 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         //mViewPager.setOffscreenPageLimit(1);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        final TabLayout tabLayout= (TabLayout)findViewById(R.id.tabs);
+        tabLayout= (TabLayout)findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        for (int i = 0; i < Initilization.addOnList.size(); i++) {
-            int position=i;
-            if(i==0 || i==5 || i==10 ||i==15 || i==20 || i==25) {
-                View v = View.inflate(context, R.layout.layout_tab_1, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_1);
-                tvt.setText(Initilization.addOnList.get(position));
-                tvt.setGravity(Gravity.CENTER);
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color1);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
-            }
-            if(i==1 || i==6 || i==11 ||i==16 || i==21 || i==26) {
-                View v = View.inflate(context, R.layout.layout_tab_2, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
-                tvt.setText(Initilization.addOnList.get(position));
-                tvt.setGravity(Gravity.CENTER);
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
-            }
-            if(i==2 || i==7 || i==12 ||i==17 || i==22 || i==27) {
-                View v = View.inflate(context, R.layout.layout_tab_3, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_3);
-                tvt.setText(Initilization.addOnList.get(position));
-                tvt.setGravity(Gravity.CENTER);
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
-            }
-            if(i==3 || i==8 || i==13 ||i==18 || i==23 || i==28) {
-                View v = View.inflate(context, R.layout.layout_tab_4, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_4);
-                tvt.setText(Initilization.addOnList.get(position));
-                tvt.setGravity(Gravity.CENTER);
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color4);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
-            }
-            if(i==4 || i==9 || i==14 ||i==19 || i==24 || i==29) {
-                View v = View.inflate(context, R.layout.layout_tab_5, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_5);
-                tvt.setText(Initilization.addOnList.get(position));
-                tvt.setGravity(Gravity.CENTER);
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color5);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
-            }
-        }
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        LinearLayout tabStrip = (LinearLayout) tabLayout.getChildAt(0);
+        initialTabs();
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+                int x=tab.getPosition()+5;
+                if ((x % 5) == 0) {
+                    int i = x - 5;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1);
+                }
+                if ((x % 5) == 1) {
+                    int i = x - 5;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color2);
+                }
+                if ((x % 5) == 2) {
+                    int i = x - 5;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color3);
+                }
+                if ((x % 5) == 3) {
+                    int i = x - 5;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color4);
+                }
+                if ((x % 5) == 4) {
+                    int i = x - 5;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color5);
+                }
+                resetOtherTabs(x - 5);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        tabStrip = (LinearLayout) tabLayout.getChildAt(0);
+        int tabPos=tabLayout.getSelectedTabPosition();
+        tabStrip.getChildAt(tabPos).setBackgroundResource(R.drawable.tab_color1);
         for (int i = 0; i < tabStrip.getChildCount(); i++) {
+            final int x = i+5;
+            tabStrip.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View vv) {
+                    if ((x % 5) == 0) {
+                        int i = x - 5;
+                        tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1);
+                    }
+                    if ((x % 5) == 1) {
+                        int i = x - 5;
+                        tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color2);
+                    }
+                    if ((x % 5) == 2) {
+                        int i = x - 5;
+                        tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color3);
+                    }
+                    if ((x % 5) == 3) {
+                        int i = x - 5;
+                        tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color4);
+                    }
+                    if ((x % 5) == 4) {
+                        int i = x - 5;
+                        tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color5);
+                    }
+                    resetOtherTabs(x-5);
+                }
+            });
+        }
+            for (int i = 0; i < tabStrip.getChildCount(); i++) {
             final int x=i;
             tabStrip.getChildAt(i).setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -229,7 +324,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                                                             String RSSNAME=Initilization.addOnList.get(x);
                                                             publishProgress(1);
                                                             Initilization.androidId = android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-                                                            String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/RemoveNewsTAB?"+RSSUID.replace(" ","")+"&AndroidId="+Initilization.androidId;
+                                                            String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/RemoveNewsTAB?RSSID="+RSSUID.replace(" ","")+"&AndroidId="+Initilization.androidId;
                                                             JsoupResopnse= Jsoup.connect(xmlUrl).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
                                                             if(!JsoupResopnse.contains("<int xmlns=\"http://tempuri.org/\">1</int>")){
                                                                 ExceptionCode=2;//Add failure but not connection
@@ -711,8 +806,15 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             Initilization.resultArray[i][Initilization.NewsDisplayOrder] = (parser.getValue(e, "NewsDisplayOrder"));
             values.put(Initilization.NEWSDISPLAYORDER, Initilization.resultArray[i][Initilization.NewsDisplayOrder]);
 
+            Initilization.resultArray[i][Initilization.FullText] = (parser.getValue(e, "FullText"));
+            values.put(Initilization.FULLTEXT, Initilization.resultArray[i][Initilization.FullText]);
+
+            Initilization.resultArray[i][Initilization.NewsUrl] = (parser.getValue(e, "NewsURL"));
+            values.put(Initilization.NEWSURL, Initilization.resultArray[i][Initilization.NewsUrl]);
+
             Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
             values.put(Initilization.CATEGORYORNEWS, Initilization.resultArray[i][Initilization.CategoryorNews]);
+
             currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
             db.insert(Initilization.TABLE_NAME, null, values);
 
@@ -741,6 +843,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
 
         Initilization.addOnList.add(2, "EverYou");
         Initilization.addOnList.add(3,"YouView");
+        Initilization.getAddOnListRSSID.add(2,"NULL");
+        Initilization.getAddOnListRSSID.add(3,"NULL");
         for(int i=0;i<Initilization.addOnList.size();){
             if(Initilization.addOnList.get(i).length()<2) {
                 Initilization.addOnList.remove(i);

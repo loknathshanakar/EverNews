@@ -82,6 +82,8 @@ public class ViewNews extends AppCompatActivity {
     static String newsID="";
     static String newsLink="";
     static String newsTitle="";
+    static String fullText="";
+    static String rssTitle="";
     static String caller="";
     static String finalHtml2 = "";
     public static FloatingActionButton fab_new;
@@ -157,7 +159,20 @@ public class ViewNews extends AppCompatActivity {
         newsID = intent.getStringExtra("NEWS_ID")+"";
         newsLink = intent.getStringExtra("NEWS_LINK")+"";
         newsTitle = intent.getStringExtra("NEWS_TITLE")+"";
+        fullText = intent.getStringExtra("FULL_TEXT")+"";
+        rssTitle = intent.getStringExtra("RSS_TITLE")+"";
         caller=intent.getStringExtra("CALLER");
+        if(newsLink.length()>2 && newsTitle.length()>2 && fullText.length()>2 && rssTitle.length()>2){
+            String title = "<h1><center>" + newsTitle + "</center></h1><br>";
+            String source = "<h2><center>" + rssTitle + "</center></h2>";
+            String news=fullText;
+            finalHtml = source + title + news;
+            String Temp = finalHtml;
+            Temp = Temp.replaceAll("(\r\n|\r|\n|\n\r)", "<br>");
+            Temp = "<p>" + Temp + "</p>";
+            finalHtml = Temp;
+        }
+
         fab_new = (FloatingActionButton) findViewById(R.id.fab_view_news);
         fab_new.setVisibility(View.GONE);
         FacebookSdk.sdkInitialize(getApplicationContext());
@@ -222,7 +237,7 @@ public class ViewNews extends AppCompatActivity {
         });
 
 
-        if (newsLink.compareTo("EMPTY")==0) {
+        if (newsLink==null || newsLink.length()<2) {
             new AsyncTask<Void, Void, String>() {
                 boolean noException=true;
                 @Override
@@ -425,56 +440,15 @@ public class ViewNews extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             final View rootView = inflater.inflate(R.layout.fragment_view_news2, container, false);
-
+            final WebView mWebView = (WebView) rootView.findViewById(R.id.webView_news);
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
-                    try {
-                        String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/LoadSingleNews?NewsID=" + newsID;
-                        URL cleanURL=new URL(xmlUrl.toString());
-                        String Xml = Jsoup.connect(xmlUrl).ignoreContentType(true).execute().body();
-                        char Xmlchar[] = Xml.toCharArray();
-                        int iIndex = -1;
-                        int eIndex = -1;
-                        iIndex = Xml.indexOf("<FullText>") + 10;
-                        eIndex = Xml.indexOf("</FullText>");
-                        String source="",title="",news="";
-                        if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                            news= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                        }
-                        iIndex = Xml.indexOf("<NewsTitle>") + 11;
-                        eIndex = Xml.indexOf("</NewsTitle>");
-                        if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                            title= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                            title="<h1><center>"+title+"</center></h1><br>";
-                        }
-                        iIndex = Xml.indexOf("<RSSTitle>") + 10;
-                        eIndex = Xml.indexOf("</RSSTitle>");
-                        if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                            source= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                            source="<h2><center>"+source+"</center></h2>";
-                        }
-                        iIndex = Xml.indexOf("<NewsURL>") + 9;
-                        eIndex = Xml.indexOf("</NewsURL>");
-                        if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                            newsLink= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                        }
-                        ViewNews.finalHtml = source+title+news;
-                        String Temp=ViewNews.finalHtml;
-                        Temp=Temp.replaceAll("(\r\n|\r|\n|\n\r)", "<br>");
-                        Temp="<p>"+Temp+"</p>";
-                        ViewNews.finalHtml=Temp;
-                    }
-                    catch (IOException e) {
-
-                    }
-                    return null;
+                    return "";
                 }
                 @Override
                 protected void onPostExecute(String link) {
-                    ViewNews.finalHtml = "<!DOCTYPE html> <html> <body>"+ ViewNews.finalHtml + "</p> </body> </html>";
-                    if(getArguments().getInt(ARG_SECTION_NUMBER)==1 && newsLink.isEmpty()==false) {
-                        final WebView mWebView = (WebView) rootView.findViewById(R.id.webView_news);
+                    if(getArguments().getInt(ARG_SECTION_NUMBER)==1 && !newsLink.isEmpty()) {
                         mWebView.setWebViewClient(new WebViewClient());
                         mWebView.loadUrl(newsLink);
                         mWebView.setOnTouchListener(new View.OnTouchListener() {
@@ -515,61 +489,62 @@ public class ViewNews extends AppCompatActivity {
             }.execute();
 
 
-            if(newsID.isEmpty()==false && getArguments().getInt(ARG_SECTION_NUMBER)==2)
+            if(getArguments().getInt(ARG_SECTION_NUMBER)==2)
             {
-                final WebView mWebView = (WebView) rootView.findViewById(R.id.webView_news);
-                mWebView.loadData(finalHtml, "text/html", null);
-                if(finalHtml.isEmpty()) {
-                    new AsyncTask<Void, Void, String>() {
-                        @Override
-                        protected String doInBackground(Void... params) {
-                            try {
-                                finalHtml2="";
-                                String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/LoadSingleNews?NewsID=" + newsID;
-                                URL cleanURL = new URL(xmlUrl.toString());
-                                String Xml = Jsoup.connect(xmlUrl).ignoreContentType(true).execute().body();
-                                char Xmlchar[] = Xml.toCharArray();
-                                int iIndex = -1;
-                                int eIndex = -1;
-                                iIndex = Xml.indexOf("<FullText>") + 10;
-                                eIndex = Xml.indexOf("</FullText>");
-                                String source = "", title = "", news = "";
-                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                    news = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                }
-                                iIndex = Xml.indexOf("<NewsTitle>") + 11;
-                                eIndex = Xml.indexOf("</NewsTitle>");
-                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                    title = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                    title = "<h1><center>" + title + "</center></h1><br>";
-                                }
-                                iIndex = Xml.indexOf("<RSSTitle>") + 10;
-                                eIndex = Xml.indexOf("</RSSTitle>");
-                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                    source = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                    source = "<h2><center>" + source + "</center></h2>";
-                                }
-                                finalHtml2 = source + title + news;
-                                String Temp = finalHtml2;
-                                Temp = Temp.replaceAll("(\r\n|\r|\n|\n\r)", "<br>");
-                                Temp = "<p>" + Temp + "</p>";
-                                finalHtml2 = Temp;
-                            } catch (IOException e) {
+                if(finalHtml!=null)
+                    mWebView.loadData(finalHtml, "text/html", null);
+                if(fullText.length()<15) {
+                    if (finalHtml.isEmpty()) {
+                        new AsyncTask<Void, Void, String>() {
+                            @Override
+                            protected String doInBackground(Void... params) {
+                                try {
+                                    finalHtml2 = "";
+                                    String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/LoadSingleNews?NewsID=" + newsID;
+                                    URL cleanURL = new URL(xmlUrl.toString());
+                                    String Xml = Jsoup.connect(xmlUrl).ignoreContentType(true).execute().body();
+                                    char Xmlchar[] = Xml.toCharArray();
+                                    int iIndex = -1;
+                                    int eIndex = -1;
+                                    iIndex = Xml.indexOf("<FullText>") + 10;
+                                    eIndex = Xml.indexOf("</FullText>");
+                                    String source = "", title = "", news = "";
+                                    if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                        news = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                    }
+                                    iIndex = Xml.indexOf("<NewsTitle>") + 11;
+                                    eIndex = Xml.indexOf("</NewsTitle>");
+                                    if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                        title = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                        title = "<h1><center>" + title + "</center></h1><br>";
+                                    }
+                                    iIndex = Xml.indexOf("<RSSTitle>") + 10;
+                                    eIndex = Xml.indexOf("</RSSTitle>");
+                                    if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                        source = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                        source = "<h2><center>" + source + "</center></h2>";
+                                    }
+                                    finalHtml2 = source + title + news;
+                                    String Temp = finalHtml2;
+                                    Temp = Temp.replaceAll("(\r\n|\r|\n|\n\r)", "<br>");
+                                    Temp = "<p>" + Temp + "</p>";
+                                    finalHtml2 = Temp;
+                                } catch (IOException e) {
 
+                                }
+                                return null;
                             }
-                            return null;
-                        }
 
-                        @Override
-                        protected void onPostExecute(String link) {
-                            finalHtml2 = "<!DOCTYPE html> <html> <body>" + finalHtml2 + "</p> </body> </html>";
-                            mWebView.loadData(finalHtml2, "text/html", null);
-                        }
-                    }.execute();
+                            @Override
+                            protected void onPostExecute(String link) {
+                                finalHtml2 = "<!DOCTYPE html> <html> <body>" + finalHtml2 + "</p> </body> </html>";
+                                mWebView.loadData(finalHtml2, "text/html", null);
+                            }
+                        }.execute();
+                    }
                 }
-            }
-            else{
-                Toast.makeText(getContext(),"Sorry news not avaliable",Toast.LENGTH_LONG);
+            } else {
+                Toast.makeText(getContext(), "Sorry news not avaliable",Toast.LENGTH_LONG).show();
             }
             return rootView;
         }

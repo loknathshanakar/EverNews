@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:id="@+id/tab_ll_1">
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/tab_tv_1"
+        android:id="@+id/tab_tv_1_r"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:background="@drawable/tab_color1"
+        android:background="@color/tab_1_color"
         android:textColor="@android:color/white"
         android:textSize="20sp"
         android:text="Teext"
@@ -18,5 +18,7 @@
         android:linksClickable="false"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:layout_gravity="center_horizontal" />
-</LinearLayout>
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>

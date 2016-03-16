@@ -14,4 +14,9 @@
         <color name="primary_dark_new">#1a2127</color>
         <color name="border">#ffd8d8d8</color>
         <color name="overlay">#82000000</color>
+        <color name="tab_1_color">#E74C3C</color>
+        <color name="tab_2_color">#991C67</color>
+        <color name="tab_3_color">#00AA00</color>
+        <color name="tab_4_color">#EC5814</color>
+        <color name="tab_5_color">#3CAEF2</color>
 </resources>

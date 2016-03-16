@@ -50,6 +50,8 @@ public class Initilization extends AppCompatActivity {
     public static final int NewsDate = 10;
     public static final int NewsDisplayOrder = 11;
     public static final int CategoryorNews = 12;
+    public static final int FullText = 13;
+    public static final int NewsUrl = 14;
     //Database related stuff
     public static final String TABLE_NAME = "FULLNEWS";
     public static final String CATEGORYID = "CategoryId";
@@ -66,8 +68,8 @@ public class Initilization extends AppCompatActivity {
     public static final String NEWSDATE = "NewsDate";
     public static final String NEWSDISPLAYORDER = "NewsDisplayOrder";
     public static final String CATEGORYORNEWS = "CategoryorNews";
-    public static final String RESERVED_0 = "RESERVED_0";
-    public static final String RESERVED_1 = "RESERVED_1";
+    public static final String FULLTEXT = "FullText";
+    public static final String NEWSURL = "NewsUrl";
     public static final String RESERVED_2 = "RESERVED_2";
     public static final String RESERVED_3 = "RESERVED_3";
     public static final String RESERVED_4 = "RESERVED_4";
@@ -82,7 +84,7 @@ public class Initilization extends AppCompatActivity {
     private static SharedPreferences sharedpreferences;
     public static String androidId="";
     public static int timeout=10000;
-    public static String resultArray[][]=new String[10000][13];
+    public static String resultArray[][]=new String[10000][15];
     public static String newsCategories[][]=new String[100][2];
     public static int resultArrayLength=0;
     public static int newsCategoryLength=0;
@@ -114,7 +116,7 @@ public class Initilization extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... progress){
             if(progress[0]==0)
-                tv.setText("Downloading news...please wait");
+                tv.setText("Downloading news for the first time...please wait");
             if(progress[0]==1)
                 tv.setText("Formatting news...please wait");
         }
@@ -128,11 +130,10 @@ public class Initilization extends AppCompatActivity {
                     + RSSURL_DB + " TEXT , " + RSSURLID
                     + " TEXT , " + NEWSID + " TEXT UNIQUE, "
                     + NEWSTITLE + " TEXT , " + SUMMARY
-                    + " TEXT , " + NEWSIMAGE + " TEXT , "
-                    + SUBTITLE + " TEXT , " + NEWSDATE
+                    + " TEXT , " + NEWSIMAGE + " TEXT , " + NEWSDATE
                     + " TEXT , " + NEWSDISPLAYORDER
-                    + " TEXT ," + CATEGORYORNEWS  + " TEXT , " + RESERVED_0
-                    + " TEXT , " + RESERVED_1
+                    + " TEXT ," + CATEGORYORNEWS  + " TEXT , " + FULLTEXT
+                    + " TEXT , " + NEWSURL
                     + " TEXT ," + RESERVED_2  + " TEXT , " + RESERVED_3
                     + " TEXT , " + RESERVED_4 + " TEXT );";
 
@@ -268,8 +269,16 @@ public class Initilization extends AppCompatActivity {
             Initilization.resultArray[i][Initilization.NewsDisplayOrder] = (parser.getValue(e, "NewsDisplayOrder"));
             values.put(NEWSDISPLAYORDER, Initilization.resultArray[i][Initilization.NewsDisplayOrder]);
 
+
+            Initilization.resultArray[i][Initilization.FullText] = (parser.getValue(e, "FullText"));
+            values.put(FULLTEXT, Initilization.resultArray[i][Initilization.FullText]);
+
+            Initilization.resultArray[i][Initilization.NewsUrl] = (parser.getValue(e, "NewsURL"));
+            values.put(NEWSURL, Initilization.resultArray[i][Initilization.NewsUrl]);
+
             Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
             values.put(CATEGORYORNEWS, Initilization.resultArray[i][Initilization.CategoryorNews]);
+
             currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
             db.insert(TABLE_NAME, null, values);
 
@@ -329,7 +338,7 @@ public class Initilization extends AppCompatActivity {
         ContentValues values = new ContentValues();
         String path=DB_PATH+DB_NAME;
         db=SQLiteDatabase.openDatabase(path,null,0);
-        String col[] = { CATEGORYID , CATEGORYNAME ,DISPLAYORDER ,RSSTITLE  ,RSSURL_DB,RSSURLID ,NEWSID ,NEWSTITLE ,SUMMARY ,NEWSIMAGE ,SUMMARY  ,SUBTITLE ,NEWSDATE,NEWSDISPLAYORDER ,CATEGORYORNEWS  };
+        String col[] = { CATEGORYID , CATEGORYNAME ,DISPLAYORDER ,RSSTITLE  ,RSSURL_DB,RSSURLID ,NEWSID ,NEWSTITLE ,SUMMARY ,NEWSIMAGE  ,NEWSDATE,NEWSDISPLAYORDER ,CATEGORYORNEWS ,FULLTEXT,NEWSURL };
         Cursor cur = db.query(TABLE_NAME, col, null, null, null, null, null);
         Integer num = cur.getCount();
         setTitle(Integer.toString(num));
@@ -398,6 +407,10 @@ public class Initilization extends AppCompatActivity {
 
             Initilization.resultArray[i][Initilization.CategoryorNews] = cur.getString(CategoryorNews);
             //values.put(CATEGORYORNEWS, Initilization.resultArray[i][Initilization.CategoryorNews]);
+
+            Initilization.resultArray[i][Initilization.FullText] = cur.getString(FullText);
+
+            Initilization.resultArray[i][Initilization.NewsUrl] = cur.getString(NewsUrl);
 
             currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
             //db.insert(TABLE_NAME, null, values);

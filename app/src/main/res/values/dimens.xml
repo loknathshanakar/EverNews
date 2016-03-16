@@ -50,4 +50,7 @@
     <dimen name="four_dp">4dp</dimen>
     <dimen name="five_dp">5dp</dimen>
     <dimen name="custom_action_bar_height">50dp</dimen>
+
+
+    <dimen name="tab_bend_radius">5dp</dimen>
 </resources>

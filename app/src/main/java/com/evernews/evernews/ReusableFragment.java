@@ -85,75 +85,80 @@ public class ReusableFragment extends Fragment {
                 }
                 final Intent i = new Intent(getActivity().getBaseContext(), ViewNews.class);
                 if(newsID==null)
-                    i.putExtra("NEWS_ID", newsID);
+                    i.putExtra("NEWS_ID", newsID+"");
                 else
                     i.putExtra("NEWS_ID", newsID);
-                i.putExtra("NEWS_LINK", "EMPTY");
-                i.putExtra("NEWS_TITLE", "EMPTY");
                 i.putExtra("CALLER","MAIN");
-                new AsyncTask<Void, Void, String>() {
-                    String newsLink="";
-                    String source="",title="",news="";
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        try {
-                            ViewNews.finalHtml="";
-                            String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/LoadSingleNews?NewsID=" + newsID;
-                            URL cleanURL=new URL(xmlUrl.toString());
-                            String Xml = Jsoup.connect(xmlUrl).ignoreContentType(true).execute().body();
-                            char Xmlchar[] = Xml.toCharArray();
-                            int iIndex = -1;
-                            int eIndex = -1;
-                            iIndex = Xml.indexOf("<FullText>") + 10;
-                            eIndex = Xml.indexOf("</FullText>");
-                            if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                news= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                            }
-                            iIndex = Xml.indexOf("<NewsTitle>") + 11;
-                            eIndex = Xml.indexOf("</NewsTitle>");
-                            if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                title= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                if(title==null)
-                                    i.putExtra("NEWS_TITLE", "NULL");
-                                else
-                                    i.putExtra("NEWS_TITLE", title);
-                                title="<h1><center>"+title+"</center></h1><br>";
-                            }
-                            iIndex = Xml.indexOf("<RSSTitle>") + 10;
-                            eIndex = Xml.indexOf("</RSSTitle>");
-                            if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                source= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                source="<h2><center>"+source+"</center></h2>";
-                            }
-                            iIndex = Xml.indexOf("<NewsURL>") + 9;
-                            eIndex = Xml.indexOf("</NewsURL>");
-                            if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
-                                newsLink= Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
-                                if(title==null)
-                                    i.putExtra("NEWS_LINK", "NULL");
-                                else
-                                    i.putExtra("NEWS_LINK", newsLink);
-                            }
-                            ViewNews.finalHtml = source+title+news;
-                            String Temp=ViewNews.finalHtml;
-                            Temp=Temp.replaceAll("(\r\n|\r|\n|\n\r)", "<br>");
-                            Temp="<p>"+Temp+"</p>";
-                            ViewNews.finalHtml=Temp;
-                        }
-                        catch (IOException e) {
+                i.putExtra("NEWS_TITLE", itemCollection.get(position).getnewsTitle());
+                i.putExtra("RSS_TITLE", itemCollection.get(position).getnewsName());
+                i.putExtra("FULL_TEXT",itemCollection.get(position).getFullText());
+                i.putExtra("NEWS_LINK", itemCollection.get(position).getNewsURL());
+                if(itemCollection.get(position).getFullText()!=null && itemCollection.get(position).getFullText().length()<15) {
+                    new AsyncTask<Void, Void, String>() {
+                        String newsLink = "";
+                        String source = "", title = "", news = "";
 
-                        }
-                        return null;
-                    }
-                    @Override
-                    protected void onPostExecute(String link) {
-                        ViewNews.finalHtml = "<!DOCTYPE html> <html> <body>"+ ViewNews.finalHtml + "</p> </body> </html>";
-                    }
-                }.execute();
+                        @Override
+                        protected String doInBackground(Void... params) {
+                            try {
+                                ViewNews.finalHtml = "";
+                                String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/LoadSingleNews?NewsID=" + newsID;
+                                URL cleanURL = new URL(xmlUrl.toString());
+                                String Xml = Jsoup.connect(xmlUrl).ignoreContentType(true).execute().body();
+                                char Xmlchar[] = Xml.toCharArray();
+                                int iIndex = -1;
+                                int eIndex = -1;
+                                iIndex = Xml.indexOf("<FullText>") + 10;
+                                eIndex = Xml.indexOf("</FullText>");
+                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                    news = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                }
+                                iIndex = Xml.indexOf("<NewsTitle>") + 11;
+                                eIndex = Xml.indexOf("</NewsTitle>");
+                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                    title = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                    if (title == null)
+                                        i.putExtra("NEWS_TITLE", "NULL");
+                                    else
+                                        i.putExtra("NEWS_TITLE", title);
+                                    title = "<h1><center>" + title + "</center></h1><br>";
+                                }
+                                iIndex = Xml.indexOf("<RSSTitle>") + 10;
+                                eIndex = Xml.indexOf("</RSSTitle>");
+                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                    source = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                    source = "<h2><center>" + source + "</center></h2>";
+                                }
+                                iIndex = Xml.indexOf("<NewsURL>") + 9;
+                                eIndex = Xml.indexOf("</NewsURL>");
+                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex) {
+                                    newsLink = Xml.copyValueOf(Xmlchar, iIndex, (eIndex - iIndex));
+                                    if (title == null)
+                                        i.putExtra("NEWS_LINK", "NULL");
+                                    else
+                                        i.putExtra("NEWS_LINK", newsLink);
+                                }
+                                ViewNews.finalHtml = source + title + news;
+                                String Temp = ViewNews.finalHtml;
+                                Temp = Temp.replaceAll("(\r\n|\r|\n|\n\r)", "<br>");
+                                Temp = "<p>" + Temp + "</p>";
+                                ViewNews.finalHtml = Temp;
+                            } catch (IOException e) {
 
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(String link) {
+                            ViewNews.finalHtml = "<!DOCTYPE html> <html> <body>" + ViewNews.finalHtml + "</p> </body> </html>";
+                        }
+                    }.execute();
+                }
                 startActivity(i);
             }
         });
+
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -298,16 +303,18 @@ public class ReusableFragment extends Fragment {
                 if(categoryId>1)
                     categoryId= categoryId+2;*/
                     if (tabName.compareTo(Initilization.resultArray[j][Initilization.Category]) == 0) {
-                        String par1 = Initilization.resultArray[j][Initilization.NewsImage];
-                        String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
-                        String par3 = Initilization.resultArray[j][Initilization.RSSTitle];
-                        String par4 = Initilization.resultArray[j][Initilization.NewsId];
-                        String par5 = Initilization.resultArray[j][Initilization.CategoryId];
-                        items.add(new ItemObject(par1, par2, par3, par4, par5));
+                        String NewsImage = Initilization.resultArray[j][Initilization.NewsImage];
+                        String NewsTitle = Initilization.resultArray[j][Initilization.NewsTitle];
+                        String RSSTitle = Initilization.resultArray[j][Initilization.RSSTitle];
+                        String NewsId = Initilization.resultArray[j][Initilization.NewsId];
+                        String CategoryId = Initilization.resultArray[j][Initilization.CategoryId];
+                        String FullText = Initilization.resultArray[j][Initilization.FullText];
+                        String NewsUrl = Initilization.resultArray[j][Initilization.NewsUrl];
+                        items.add(new ItemObject(NewsImage, NewsTitle, RSSTitle, NewsId, CategoryId,FullText,NewsUrl));
                         refrenceCounter++;
                         //Need to implement a filter to prevent re adding of data
                         for (int k = 0; k < itemCollection.size(); k++) {
-                            if (itemCollection.get(k).getNewsID().compareTo(par4) == 0) {
+                            if (itemCollection.get(k).getNewsID().compareTo(NewsId) == 0) {
                                 items.remove(items.size() - 1);
                             }
                         }
@@ -333,7 +340,9 @@ public class ReusableFragment extends Fragment {
                     String par3 = Initilization.resultArray[j][Initilization.RSSTitle];     //RSSTitle
                     String par4 = Initilization.resultArray[j][Initilization.NewsId];
                     String par5 = Initilization.resultArray[j][Initilization.RSSURL];
-                    items.add(new ItemObject(par1, par2, par3, par4,par5));
+                    String FullText = Initilization.resultArray[j][Initilization.FullText];
+                    String NewsUrl = Initilization.resultArray[j][Initilization.NewsUrl];
+                    items.add(new ItemObject(par1, par2, par3, par4,par5,FullText,NewsUrl));
                     refrenceCounter++;
                     //Need to implement a filter to prevent re adding of data
                     for(int k=0;k<itemCollection.size();k++){
@@ -364,7 +373,9 @@ public class ReusableFragment extends Fragment {
                 String par3 = (parser.getValue(e, "RSSTitle"));
                 String par4 = (parser.getValue(e, "NewsId"));
                 String par5 = (parser.getValue(e, "CategoryId"));
-                asyncitems.add(new ItemObject(par1, par2, par3, par4,par5));
+                String FullText = (parser.getValue(e, "FullText"));
+                String NewsURL = (parser.getValue(e, "NewsURL"));
+                asyncitems.add(new ItemObject(par1, par2, par3, par4,par5,FullText,NewsURL));
                 for(int k=0;k<itemCollection.size();k++){
                     if(itemCollection.get(k).getNewsID().compareTo(par4)==0){
                         asyncitems.remove(asyncitems.size()-1);
