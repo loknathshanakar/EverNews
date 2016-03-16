@@ -182,7 +182,7 @@ public class Initilization extends AppCompatActivity {
                 if((content!=null && goCode==1) || (content!=null && sharedpreferences.getBoolean(Main.NEWCHANNELADDED,false)))
                 {
                     String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
-                    Log.d("response", result);
+                    //Log.d("response", result);
                     //after getting the response we have to parse it
                     parseResults(result);
                     SharedPreferences.Editor editor = sharedpreferences.edit();

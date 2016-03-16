@@ -28,6 +28,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,6 +41,7 @@ import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,9 +96,49 @@ public class ViewNews extends AppCompatActivity {
     CallbackManager callbackManager;
     ShareDialog shareDialog;
 
+    TabLayout tabLayout;
+    LinearLayout tabStrip;
+    View virtualView;
 
     private static SharedPreferences sharedpreferences;
+    private boolean initialTabs(){
+        try {
+            int i=0;
+            if (i == 0) {
+                View v = View.inflate(getBaseContext(), R.layout.layout_tab_3, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_3);
+                tvt.setText("WebView");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
+                tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_3_color));
+                tabLayout.setSelectedTabIndicatorHeight(2);
+            }
+            i=1;
+            if (i == 1) {
+                View v = View.inflate(getApplicationContext(), R.layout.layout_tab_5, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_5);
+                tvt.setText("EverView");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color5);
+                tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                tabLayout.setSelectedTabIndicatorHeight(2);
+            }
+        }catch (Exception e){
+            return(false);
+        }
+        return(true);
+    }
 
+    public void resetOtherTabs(int skipTab){
+        for (int i = 0; i < tabStrip.getChildCount(); i++) {
+            if(i==skipTab) {
+                continue;
+            }
+            else{
+                tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1_rised_uncolored);
+            }
+        }
+    }
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -143,31 +185,49 @@ public class ViewNews extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container_view_news);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs_view_news);
+        tabLayout = (TabLayout) findViewById(R.id.tabs_view_news);
         tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        //tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
-        for (int i = 0; i < Initilization.addOnList.size(); i++) {
-            int position = i;
-            if (i == 0) {
-                View v = View.inflate(getBaseContext(), R.layout.layout_tab_1, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_1);
-                tvt.setText("WebView");
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color1);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
+        initialTabs();
+
+        virtualView=(View) findViewById(R.id.virtual_tab_viewnews);
+        virtualView.setBackgroundColor(getResources().getColor(R.color.tab_3_color));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+                int x = tab.getPosition();
+                if ((x) == 0) {
+                    int i=x;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color3);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_3_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_3_color));
+                    tabLayout.setSelectedTabIndicatorHeight(4);
+                }
+                if ((x)== 1) {
+                    int i=x;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color5);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_5_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_5_color));
+                    tabLayout.setSelectedTabIndicatorHeight(4);
+                }
+                resetOtherTabs(x);
             }
-            if (i == 1) {
-                View v = View.inflate(getApplicationContext(), R.layout.layout_tab_2, null);
-                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
-                tvt.setText("EverView");
-                tabLayout.getTabAt(i).setCustomView(v);
-                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
-                tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
-                tabLayout.setSelectedTabIndicatorHeight(5);
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
             }
-        }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        tabStrip = (LinearLayout) tabLayout.getChildAt(0);
+        int tabPos=tabLayout.getSelectedTabPosition();
+        tabStrip.getChildAt(tabPos).setBackgroundResource(R.drawable.tab_color3);
 
         Intent intent = getIntent();
         newsID = intent.getStringExtra("NEWS_ID")+"";

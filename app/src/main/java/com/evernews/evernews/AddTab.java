@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,11 +51,64 @@ public class AddTab extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     Context context;
-    private static SharedPreferences sharedpreferences;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    TabLayout tabLayout;
+    LinearLayout tabStrip;
+    View virtualView;
+
+    private static SharedPreferences sharedpreferences;
+    private boolean initialTabs(){
+        try {
+            int i=0;
+            if (i == 0) {
+                View v = View.inflate(getBaseContext(), R.layout.layout_tab_2, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_2);
+                tvt.setText("Featured");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color2);
+                tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_2_color));
+                tabLayout.setSelectedTabIndicatorHeight(2);
+            }
+            i=1;
+            if (i == 1) {
+                View v = View.inflate(getApplicationContext(), R.layout.layout_tab_3, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_3);
+                tvt.setText("Popular");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color3);
+                tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_3_color));
+                tabLayout.setSelectedTabIndicatorHeight(2);
+            }
+            i=2;
+            if (i == 2) {
+                View v = View.inflate(getApplicationContext(), R.layout.layout_tab_4, null);
+                TextView tvt = (TextView) v.findViewById(R.id.tab_tv_4);
+                tvt.setText("Categories");
+                tabLayout.getTabAt(i).setCustomView(v);
+                tabLayout.getTabAt(i).getCustomView().setBackgroundResource(R.drawable.tab_color4);
+                tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_4_color));
+                tabLayout.setSelectedTabIndicatorHeight(2);
+            }
+        }catch (Exception e){
+            return(false);
+        }
+        return(true);
+    }
+
+    public void resetOtherTabs(int skipTab){
+        for (int i = 0; i < tabStrip.getChildCount(); i++) {
+            if(i==skipTab) {
+                continue;
+            }
+            else{
+                tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color1_rised_uncolored);
+            }
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +125,7 @@ public class AddTab extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         context=this;
-
+        getSupportActionBar().setLogo(R.drawable.logo);
 
         sharedpreferences = getSharedPreferences(Main.USERLOGINDETAILS, Context.MODE_PRIVATE);
         if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("L")==0){
@@ -83,9 +137,58 @@ public class AddTab extends AppCompatActivity {
 
         if(Main.validCategory==false)
             new GetCategoryList().execute();
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-        for (int i = 0; i < Initilization.addOnList.size(); i++) {
+
+        initialTabs();
+
+        virtualView=(View) findViewById(R.id.virtual_tab_addtab);
+        virtualView.setBackgroundColor(getResources().getColor(R.color.tab_2_color));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+                int x = tab.getPosition();
+                if ((x) == 0) {
+                    int i=x;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color2);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_2_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_2_color));
+                    tabLayout.setSelectedTabIndicatorHeight(4);
+                }
+                if ((x)== 1) {
+                    int i=x;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color3);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_3_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_3_color));
+                    tabLayout.setSelectedTabIndicatorHeight(4);
+                }
+                if ((x)== 2) {
+                    int i=x;
+                    tabStrip.getChildAt(i).setBackgroundResource(R.drawable.tab_color4);
+                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.tab_4_color));
+                    virtualView.setBackgroundColor(getResources().getColor(R.color.tab_4_color));
+                    tabLayout.setSelectedTabIndicatorHeight(4);
+                }
+                resetOtherTabs(x);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        tabStrip = (LinearLayout) tabLayout.getChildAt(0);
+        int tabPos=tabLayout.getSelectedTabPosition();
+        tabStrip.getChildAt(tabPos).setBackgroundResource(R.drawable.tab_color2);
+
+        /*for (int i = 0; i < Initilization.addOnList.size(); i++) {
             int position = i;
             if (i == 0) {
                 View v = View.inflate(context, R.layout.layout_tab_2, null);
@@ -114,7 +217,7 @@ public class AddTab extends AppCompatActivity {
                 tabLayout.setSelectedTabIndicatorColor(Color.rgb(0, 0, 100));
                 tabLayout.setSelectedTabIndicatorHeight(5);
             }
-        }
+        }*/
     }
 
     @Override

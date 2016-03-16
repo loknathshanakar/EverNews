@@ -29,8 +29,16 @@
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:background="#ffffff" />
+            android:layout_height="41dp"
+            android:background="#ffffff"
+            app:tabMaxWidth="0dp"
+            app:tabGravity="fill"
+            app:tabMode="fixed"/>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="5dp"
+            android:layout_marginTop="-5dp"
+            android:id="@+id/virtual_tab_addtab"/>
 
     </android.support.design.widget.AppBarLayout>
 

@@ -313,12 +313,12 @@ public class ReusableFragment extends Fragment {
                                         if(ExceptionCode==2)
                                             Toast.makeText(getContext(),"Some server related issue occurred..please try again later",Toast.LENGTH_SHORT).show();
                                         else
-                                            Toast.makeText(getContext(),"Unknown error occured",Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getContext(),"Unknown error occurred,check your internet connection",Toast.LENGTH_SHORT).show();
                                     }
                                     if(content!=null && ExceptionCode==0)
                                     {
                                         String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
-                                        Log.d("response", result);
+                                        //Log.d("response", result);
                                         //after getting the response we have to parse it
                                         parseResults(result);
                                         itemCollection.addAll(asyncitems);
@@ -515,6 +515,7 @@ public class ReusableFragment extends Fragment {
         }finally {
             db.close();
         }
+        db.close();
     }
 
 

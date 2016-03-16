@@ -33,11 +33,11 @@
             android:textAlignment="center"
             android:background="@drawable/tab_background_unselected"
             android:layout_width="match_parent"
-            android:layout_height="43dp" />
+            android:layout_height="41dp" />
         <View
             android:layout_width="fill_parent"
             android:layout_height="5dp"
-            android:layout_marginTop="-6dp"
+            android:layout_marginTop="-5dp"
             android:id="@+id/virtual_tab"/>
 
     </android.support.design.widget.AppBarLayout>

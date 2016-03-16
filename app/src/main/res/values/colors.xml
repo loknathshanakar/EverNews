@@ -15,8 +15,13 @@
         <color name="border">#ffd8d8d8</color>
         <color name="overlay">#82000000</color>
         <color name="tab_1_color">#E74C3C</color>
-        <color name="tab_2_color">#991C67</color>
-        <color name="tab_3_color">#00AA00</color>
-        <color name="tab_4_color">#EC5814</color>
-        <color name="tab_5_color">#3CAEF2</color>
+        <color name="tab_2_color">#F39C12</color>
+        <color name="tab_3_color">#2ECB71</color>
+        <color name="tab_4_color">#3498DB</color>
+        <color name="tab_5_color">#9B59B6</color>
+        <color name="tab_1_color_unselected">#CF4436</color>
+        <color name="tab_2color_unselected">#DA8C10</color>
+        <color name="tab_3_color_unselected">#29B765</color>
+        <color name="tab_4_color_unselected">#2E88C5</color>
+        <color name="tab_5_color_unselected">#8B50A3</color>
 </resources>
