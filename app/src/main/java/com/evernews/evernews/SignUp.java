@@ -228,6 +228,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                     final String pnumbers = userNumber.getText().toString().replace(" ", "");
                     final String passWord = password.getText().toString().replace(" ", "");
                     final String confirmpassWord = comfirmpassword.getText().toString().replace(" ", "");
+                    final String city=mSpinner.getText().toString().replace(" ","");
                     String errorString = "Please correct the following errors...\r\n";
                     boolean validEmail = isValidEmail(emails);
                     boolean validNumber = isValidNumber(pnumbers);
@@ -256,7 +257,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                     if (validEmail == true && validNumber == true && validUsername == true && validPassword == true && validCity==true) {
                         //Post details to server
                         Initilization.androidId = android.provider.Settings.Secure.getString(getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-                        String urlStr="http://rssapi.psweb.in/everapi.asmx/RegisterUser?FullName=" + userNames + "&Email=" + emails + "&Password=" + passWord + "&Mobile=" + pnumbers + "&AndroidId=" + Initilization.androidId;
+                        String urlStr="http://rssapi.psweb.in/everapi.asmx/RegisterUser?FullName=" + userNames + "&Email=" + emails + "&Password=" + passWord + "&Mobile=" + pnumbers + "&AndroidId=" + Initilization.androidId+"&City="+city;
                         URL url=null;
                         try{
                             url = new URL(urlStr);
@@ -298,6 +299,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                         Toast.makeText(getContext(), "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
                                     if (ExceptionCode == 2)
                                         Toast.makeText(getContext(), "Some server related issue occurred..please try again later", Toast.LENGTH_SHORT).show();
+                                    Main.progress.setVisibility(View.GONE);
                                 }
                                 int JsoupResp=-99;
                                 try{
@@ -305,7 +307,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                 }catch (NumberFormatException e){
 
                                 }
-                                if (JsoupResopnse.isEmpty() == false &&  JsoupResp > 0) {
+                                if (!JsoupResopnse.isEmpty() &&  JsoupResp > 0) {
                                     //Store all user data into shared prefrence
                                     SharedPreferences.Editor editor = sharedpreferences.edit();
                                     editor.putString(Main.USERNAME, userNames);
@@ -314,7 +316,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                     editor.putString(Main.USERPHONENUMBER, pnumbers);
                                     editor.putBoolean(Main.ISREGISTRED, true);
                                     editor.putBoolean(Main.LOGGEDIN, true);
-                                    editor.commit();
+                                    editor.apply();
                                     Toast.makeText(getContext(), "Registration complete your UserId is " + JsoupResopnse, Toast.LENGTH_LONG).show();
                                     userName.setText("");
                                     userEmail.setText("");
@@ -323,8 +325,10 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                     comfirmpassword.setText("");
                                     mSpinner.setText("");
                                     Main.progress.setVisibility(View.GONE);
-                                } else
+                                } else if(ExceptionCode==0){
                                     Toast.makeText(getContext(), "Please check the filled details", Toast.LENGTH_SHORT).show();
+                                    Main.progress.setVisibility(View.GONE);
+                                }
                             }
                         }.execute();
                     } else {

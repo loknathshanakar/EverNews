@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -80,8 +81,6 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     private ViewPager mViewPager;
     public static final String USERLOGINDETAILS = "USERLOGINDETAILS" ;
     private static SharedPreferences sharedpreferences;
-    public static String uniqueID="";
-    SQLiteDatabase db;
     public static String USERNAME="USERNAME";
     public static String USERID="USERID";
     public static String USEREMAIL="USEREMAIL";
@@ -89,6 +88,10 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
     public static String ISREGISTRED="ISREGISTRED";
     public static String LOGGEDIN="LOGGEDIN";
     public static String NEWCHANNELADDED="NEWCHANNELADDED";
+    public static String ARTICLEFONTSIZE="ARTICLEFONTSIZE";
+    public static String APPLICATIONORIENTATION="APPLICATIONORIENTATION";
+    public static String uniqueID="";
+    SQLiteDatabase db;
     ShareDialog shareDialog;
     TabLayout tabLayout;
     LinearLayout tabStrip;
@@ -184,13 +187,26 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         getSupportActionBar().setTitle("");
         context=this;
 
+
+
         progress=(ProgressBar)findViewById(R.id.progress);
         progress.setVisibility(View.GONE);
         if(validCategory==false)
             new GetCategoryList().execute();
+
+
+
         sharedpreferences = getSharedPreferences(USERLOGINDETAILS, Context.MODE_PRIVATE);
-        //tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
-        // Set up the ViewPager with the sections adapter.
+        if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("L")==0){
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        else if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("P")==0){
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
+
+
+
         mViewPager = (ViewPager) findViewById(R.id.container);
         //mViewPager.setOffscreenPageLimit(1);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -369,6 +385,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                                                         if(ExceptionCode==0) {
                                                             SharedPreferences.Editor editor = sharedpreferences.edit();
                                                             editor.putBoolean(Main.NEWCHANNELADDED, true);
+                                                            editor.commit();
                                                             Snackbar snackbar = Snackbar.make(v, "News removed successfully...", Snackbar.LENGTH_LONG);
                                                             snackbar.show();
                                                         }
@@ -405,6 +422,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
 
             case R.id.action_add:
                 Intent iii=new Intent(Main.this,AddTab.class);
+                iii.putExtra("CALLER", "MAIN");
                 startActivity(iii);
                 return true;
 
@@ -472,88 +490,6 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                                  Bundle savedInstanceState) {
             View rootView=null;
             return rootView;
-        }
-
-        private File savebitmap(Bitmap bmp) {
-            String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
-            OutputStream outStream = null;
-            File file = new File(extStorageDirectory,uniqueID+".jpg");
-            if (file.exists()) {
-                file.delete();
-                file = new File(extStorageDirectory, uniqueID+".jpg");
-            }
-            try {
-                outStream = new FileOutputStream(file);
-                bmp.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-                outStream.flush();
-                outStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-            return file;
-        }
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            if (resultCode == RESULT_OK) {
-                if (requestCode == 1) {
-                    File f = new File(Environment.getExternalStorageDirectory().toString());
-                    for (File temp : f.listFiles()) {
-                        if (temp.getName().equals(uniqueID+".jpg")) {
-                            f = temp;
-                           // File photo = new File(Environment.getExternalStorageDirectory(), uniqueID+".jpg");
-                            break;
-                        }
-                    }
-                    try {
-                        Bitmap bitmap;
-                        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-                        bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), bitmapOptions);
-                        savebitmap(bitmap);
-                        artImage.setImageBitmap(bitmap);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (requestCode == 2) {
-                    Uri selectedImage = data.getData();
-                    String[] filePath = {MediaStore.Images.Media.DATA};
-                    Cursor c = getActivity().getContentResolver().query(selectedImage, filePath, null, null, null);
-                    c.moveToFirst();
-                    int columnIndex = c.getColumnIndex(filePath[0]);
-                    String picturePath = c.getString(columnIndex);
-                    c.close();
-                    Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
-                    //Log.w("path of im.", picturePath + "");
-                    savebitmap(thumbnail);
-                    artImage.setImageBitmap(thumbnail);
-                }
-            }
-        }
-
-        private void selectImage() {
-            final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Add Photo!");
-            builder.setItems(options, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int item) {
-                    if (options[item].equals("Take Photo")) {
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        File f = new File(android.os.Environment.getExternalStorageDirectory(), uniqueID+".jpg");
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
-                        startActivityForResult(intent, 1);
-                    }
-                    else if (options[item].equals("Choose from Gallery")) {
-                        Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(intent, 2);
-                    }
-                    else if (options[item].equals("Cancel")) {
-                        dialog.dismiss();
-                    }
-                }
-            });
-            builder.show();
         }
     }
 

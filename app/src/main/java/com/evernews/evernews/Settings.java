@@ -1,25 +1,38 @@
 package com.evernews.evernews;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 
 import java.util.List;
 
 public class Settings extends AppCompatActivity {
-    TextView newsChannel, newsNotify, newsFont, themeType, newsTwit, newsFb, newsSupport, newsReview, newsRecomend, newsPolicy, newsTerms, newsCredits, newsWeb, newsVersion;
-    private static Activity context;
+    TextView newsChannel, newsOrientationType,newsOrientation, newsFont, newsSupport, newsReview, newsRecomend, newsPolicy, newsTerms, newsCredits, newsWeb, newsVersion;
+    //private static Activity context;
+    RelativeLayout orientationListiner;
+    Context context;
+    private static SharedPreferences sharedpreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,36 +44,101 @@ public class Settings extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
         getSupportActionBar().setTitle("");
 
+        context=this;
+        sharedpreferences = getSharedPreferences(Main.USERLOGINDETAILS, Context.MODE_PRIVATE);
+        if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("L")==0){
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        else if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("P")==0){
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
 
 
-        newsTwit= (TextView) findViewById(R.id.newsTwit);
-        newsTwit.setOnClickListener(new View.OnClickListener() {
+
+        newsChannel= (TextView) findViewById(R.id.newsChannel);
+        newsChannel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    tweet();
-                }catch (Exception e){e.printStackTrace();}
+                    Intent iii = new Intent(Settings.this, AddTab.class);
+                    iii.putExtra("CALLER", "SETTINGS");
+                    startActivity(iii);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
 
+        newsOrientation= (TextView) findViewById(R.id.orientationtype);
+        newsOrientationType= (TextView) findViewById(R.id.orientationtype);
+        if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("L")==0){
+            newsOrientationType.setText("Landscape");
+        }
+        else if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("P")==0){
+            newsOrientationType.setText("Portrait");
+        }else {
+            newsOrientationType.setText("Automatic");
+        }
 
-        newsFb= (TextView) findViewById(R.id.newsFb);
-        newsFb.setOnClickListener(new View.OnClickListener() {
+        orientationListiner=(RelativeLayout)findViewById(R.id.orientation_listiner);
+        orientationListiner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-//                new ShareDialog().
-//                Share.newShare((context == null ? getApplicationContext() : context), ShareHosts.FACEBOOK, proto);
-                }catch (Exception e){e.printStackTrace();}
-                Toast.makeText(Settings.this, "Facebook..", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builderSingle = new AlertDialog.Builder(context);
+                builderSingle.setIcon(R.drawable.ic_launcher);
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(context, android.R.layout.select_dialog_item);
+                builderSingle.setTitle("Select orientation");
+                arrayAdapter.add("Automatic");
+                arrayAdapter.add("Portrait");
+                arrayAdapter.add("Landscape");
+                builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builderSingle.setAdapter(
+                        arrayAdapter,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences.Editor editor = sharedpreferences.edit();
+                                switch (which) {
+                                    case 0:
+                                        editor.putString(Main.APPLICATIONORIENTATION, "A");
+                                        newsOrientationType.setText("Automatic");
+                                        editor.apply();
+                                        recreate();
+                                        break;
+                                    case 1:
+                                        editor = sharedpreferences.edit();
+                                        editor.putString(Main.APPLICATIONORIENTATION, "P");
+                                        newsOrientationType.setText("Portrait");
+                                        recreate();
+                                        editor.apply();
+                                        break;
+                                    case 2:
+                                        editor = sharedpreferences.edit();
+                                        editor.putString(Main.APPLICATIONORIENTATION, "L");
+                                        newsOrientationType.setText("Landscape");
+                                        recreate();
+                                        editor.apply();
+                                        break;
+                                    case 3:
+                                        break;
+                                    case 4:
+                                        break;
+                                    case 5:
+                                        break;
+                                }
+                            }
+                        });
+                builderSingle.show();
             }
         });
-
-
-
-
         newsSupport= (TextView) findViewById(R.id.newsSupport);
         newsSupport.setOnClickListener(new View.OnClickListener() {
             @Override

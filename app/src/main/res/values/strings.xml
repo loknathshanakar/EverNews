@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EverNews V2.0</string>
+    <string name="app_name">EverNews</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="app_with_version">EverNews v2.0</string>

@@ -10,7 +10,7 @@
     <ScrollView
         android:id="@+id/textAreaScroller"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:fillViewport="true"
         android:scrollbars="vertical">
 
@@ -60,6 +60,10 @@
                 android:layout_margin="5sp"
                 android:layout_height="1dp"
                 android:background="@color/accent" />
+            <RelativeLayout
+                android:id="@+id/fontSizeListiner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/newsFont"
                 android:layout_width="match_parent"
@@ -68,6 +72,7 @@
                 android:paddingLeft="20sp"
                 android:textSize="15sp"
                 android:text="Article Font Size"/>
+            </RelativeLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_margin="5sp"
@@ -88,74 +93,41 @@
                 android:layout_margin="5sp"
                 android:layout_height="2dp"
                 android:background="@color/accent" />
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:id="@+id/orientation_listiner">
                 <TextView
-                    android:id="@+id/newsTheme"
-                    android:layout_width="match_parent"
+                    android:id="@+id/orientation"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10sp"
-                    android:paddingLeft="20sp"
                     android:textSize="15sp"
-                    android:text="Theme : "/>
+                    android:text="Orientation "
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
                 <TextView
-                    android:id="@+id/themeType"
-                    android:layout_width="match_parent"
+                    android:id="@+id/orientationtype"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10sp"
-                    android:paddingLeft="20sp"
                     android:textSize="15sp"
-                    android:text="Day Mode"/>
-            </LinearLayout>
+                    android:text="Automatic"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+            </RelativeLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_margin="5sp"
                 android:layout_height="1dp"
                 android:background="@color/accent" />
-
-            <TextView
-                android:id="@+id/newsExternal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:paddingLeft="20sp"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:text="External Services"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_margin="5sp"
-                android:layout_height="2dp"
-                android:background="@color/accent" />
-            <TextView
-                android:id="@+id/newsTwit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:paddingLeft="20sp"
-                android:textSize="15sp"
-                android:text="Twitter"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_margin="5sp"
-                android:layout_height="1dp"
-                android:background="@color/accent" />
-            <TextView
-                android:id="@+id/newsFb"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:paddingLeft="20sp"
-                android:textSize="15sp"
-                android:text="Facebook"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_margin="5sp"
-                android:layout_height="1dp"
-                android:background="@color/accent" />
-
             <TextView
                 android:id="@+id/newsAbout"
                 android:layout_width="match_parent"
@@ -279,11 +251,8 @@
                     android:layout_margin="10sp"
                     android:paddingLeft="20sp"
                     android:textSize="15sp"
-                    android:text="1.1"/>
+                    android:text="2.0"/>
             </LinearLayout>
-
-
-
         </LinearLayout>
 
     </ScrollView>

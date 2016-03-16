@@ -3,6 +3,8 @@ package com.evernews.evernews;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
@@ -47,7 +49,8 @@ public class AddTab extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-Context context;
+    Context context;
+    private static SharedPreferences sharedpreferences;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -67,10 +70,17 @@ Context context;
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.logo);
-        //getSupportActionBar().setHomeAsUpIndicator(R.drawable.go_backpng);
         context=this;
+
+
+        sharedpreferences = getSharedPreferences(Main.USERLOGINDETAILS, Context.MODE_PRIVATE);
+        if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("L")==0){
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        else if(sharedpreferences.getString(Main.APPLICATIONORIENTATION,"A").compareTo("P")==0){
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         if(Main.validCategory==false)
             new GetCategoryList().execute();
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -116,10 +126,20 @@ Context context;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            Intent intent=new Intent(AddTab.this,Main.class);
-            startActivity(intent);
-            finish();
+        Bundle extras = getIntent().getExtras();
+        String value="";
+        if (extras != null) {
+            value = extras.getString("CALLER");
+            if ((keyCode == KeyEvent.KEYCODE_BACK) && value.compareTo("MAIN") == 0) {
+                Intent intent = new Intent(AddTab.this, Main.class);
+                startActivity(intent);
+                finish();
+            }
+            else if ((keyCode == KeyEvent.KEYCODE_BACK) && value.compareTo("SETTINGS") == 0) {
+                Intent intent = new Intent(AddTab.this, Settings.class);
+                startActivity(intent);
+                finish();
+            }
         }
         return super.onKeyDown(keyCode, event);
     }

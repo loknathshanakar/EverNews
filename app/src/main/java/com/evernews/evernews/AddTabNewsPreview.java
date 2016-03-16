@@ -167,6 +167,7 @@ public class AddTabNewsPreview extends DialogFragment {
                         if(ExceptionCode==0) {
                             SharedPreferences.Editor editor = sharedpreferences.edit();
                             editor.putBoolean(Main.NEWCHANNELADDED, true);
+                            editor.commit();
                             Snackbar snackbar = Snackbar.make(add, "News added successfully...", Snackbar.LENGTH_LONG);
                             snackbar.show();
                         }

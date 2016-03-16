@@ -125,7 +125,7 @@ public class Initilization extends AppCompatActivity {
         protected Void doInBackground(Void... params)
         {
             SQL_CREATE_ENTRIES = "CREATE TABLE  IF NOT EXISTS "+TABLE_NAME+"("
-                    + CATEGORYID + " TEXT ,  "
+                    + CATEGORYID + " TEXT , "
                     + CATEGORYNAME + " TEXT , " + DISPLAYORDER
                     + " TEXT , " + RSSTITLE + " TEXT , "
                     + RSSURL_DB + " TEXT , " + RSSURLID
@@ -133,9 +133,9 @@ public class Initilization extends AppCompatActivity {
                     + NEWSTITLE + " TEXT , " + SUMMARY
                     + " TEXT , " + NEWSIMAGE + " TEXT , " + NEWSDATE
                     + " TEXT , " + NEWSDISPLAYORDER
-                    + " TEXT ," + CATEGORYORNEWS  + " TEXT , " + FULLTEXT
+                    + " TEXT , " + CATEGORYORNEWS  + " TEXT , " + FULLTEXT
                     + " TEXT , " + NEWSURL
-                    + " TEXT ," + RESERVED_2  + " TEXT , " + RESERVED_3
+                    + " TEXT , " + RESERVED_2  + " TEXT , " + RESERVED_3
                     + " TEXT , " + RESERVED_4 + " TEXT );";
 
             db= openOrCreateDatabase(TABLE_NAME, MODE_PRIVATE, null);
@@ -187,6 +187,7 @@ public class Initilization extends AppCompatActivity {
                     parseResults(result);
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.putBoolean(Main.NEWCHANNELADDED, false);
+                    editor.commit();
                     Intent main=new Intent(Initilization.this,Main.class);
                     startActivity(main);
                     finish();
