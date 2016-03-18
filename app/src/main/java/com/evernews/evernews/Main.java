@@ -1,6 +1,8 @@
 package com.evernews.evernews;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,19 +12,13 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -32,7 +28,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,11 +35,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,14 +50,13 @@ import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
@@ -500,6 +492,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 return true;
 
             case R.id.action_refresh:
+                Toast.makeText(context,"Refresh in background has started...",Toast.LENGTH_LONG).show();
                 new GetNewsTask().execute();
                 return true;
 
@@ -664,29 +657,42 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         }
 
         @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            if(ExceptionCode>0) {
-                if(ExceptionCode==1)
+        protected void onPostExecute(Void aVoid) {
+            if (ExceptionCode > 0) {
+                if (ExceptionCode == 1)
                     Toast.makeText(getApplicationContext(), "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
-                if(ExceptionCode==2)
-                    Toast.makeText(getApplicationContext(),"Some server related issue occurred..please try again later",Toast.LENGTH_SHORT).show();
+                if (ExceptionCode == 2)
+                    Toast.makeText(getApplicationContext(), "Some server related issue occurred..please try again later", Toast.LENGTH_SHORT).show();
             }
-            if(content!=null)
-            {
-                String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
+            if (content != null) {
+                String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
                 //Log.d("response", result);
                 //after getting the response we have to parse it
                 parseResults(result);
-                Toast.makeText(getApplicationContext(),"Refreshing done",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Refreshing done,Application will now restart...", Toast.LENGTH_SHORT).show();
+
+                ProgressDialog progressdlg = new ProgressDialog(context);
+                progressdlg.setMessage("Restarting Application");
+                progressdlg.setTitle("Refreshing data done,Please Wait...");
+                progressdlg.setCancelable(false);
+                progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressdlg.setIndeterminate(true);
+                progressdlg.show();
+
+                new CountDownTimer(3000, 1000) {
+
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    public void onFinish() {
+                        Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);
+                    }
+                }.start();
                 progress.setVisibility(View.GONE);
-                /*Intent intent = getIntent();
-                finish();
-                startActivity(intent);*/
-                recreate();
+                super.onPostExecute(aVoid);
             }
-            progress.setVisibility(View.GONE);
-            super.onPostExecute(aVoid);
         }
     }
 

@@ -7,7 +7,7 @@
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_autorenew_black_24dp"
-        android:title="Settings"
+        android:title="Refresh"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_search"
@@ -24,6 +24,6 @@
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_reorder_black_24dp"
-        android:title="Refresh News"
+        android:title="Settings"
         app:showAsAction="always"/>
 </menu>

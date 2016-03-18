@@ -5,18 +5,15 @@ package com.evernews.evernews;
  */
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -95,7 +92,7 @@ public class CustomAdapter extends BaseAdapter {
                     }
                 });*/
 
-        Glide.with(context).load(listStorage.get(position).getNewsImage()).diskCacheStrategy(DiskCacheStrategy.ALL).skipMemoryCache(true).placeholder(R.mipmap.news).error(R.mipmap.news).into(listViewHolder.thumbnail);
+        Glide.with(context).load(listStorage.get(position).getNewsImage()).diskCacheStrategy(DiskCacheStrategy.ALL).skipMemoryCache(true).fitCenter().placeholder(R.mipmap.news).error(R.mipmap.news).into(listViewHolder.thumbnail);
         listViewHolder.source.setText(listStorage.get(position).getnewsName());
         listViewHolder.title.setText(listStorage.get(position).getnewsTitle());
         return convertView;

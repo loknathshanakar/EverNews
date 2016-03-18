@@ -2,7 +2,7 @@
     <string name="app_name">EverNews</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
-    <string name="app_with_version">EverNews v2.0</string>
+    <string name="app_with_version">EverNews v0.0317</string>
     <string name="title_activity_view_news">ViewNews</string>
     <string name="share_using">Share Using</string>
     <!-- TODO: Remove or change this placeholder text -->

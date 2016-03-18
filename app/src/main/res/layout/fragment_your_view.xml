@@ -35,7 +35,7 @@
             android:layout_gravity="center_horizontal"
             android:textColor="#FF0000"
             android:textSize="18sp"
-            android:text="Net Connection Slow..!" />
+            android:text="Coming Soon...!" />
 
         <ListView
             android:id="@+id/contentList"

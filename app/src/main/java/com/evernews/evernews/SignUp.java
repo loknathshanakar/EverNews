@@ -2,26 +2,29 @@ package com.evernews.evernews;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlarmManager;
+import android.app.Dialog;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInstaller;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,15 +36,14 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONObject;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -92,7 +94,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
     TextView password ; //= (TextView) getActivity().findViewById(R.id.password);
     TextView comfirmpassword;
     Button signUp; // = (Button) getActivity().findViewById(R.id.signup);
-    Button noAction; // = (Button) getActivity().findViewById(R.id.noAction);
+    Button login; // = (Button) getActivity().findViewById(R.id.noAction);
     Button fbSignup ; //= (Button) getActivity().findViewById(R.id.facebook);
     Button gSignup; // = (Button) getActivity().findViewById(R.id.google);
     Button twittersignup;
@@ -199,8 +201,8 @@ public class SignUp extends Fragment implements View.OnClickListener{
         comfirmpassword = (TextView) view.findViewById(R.id.comfirmpassword);
         signUp = (Button) view.findViewById(R.id.signup);
         signUp.setOnClickListener(this);
-        noAction = (Button) view.findViewById(R.id.noAction);
-        noAction.setOnClickListener(this);
+        login = (Button) view.findViewById(R.id.noAction);
+        login.setOnClickListener(this);
         gSignup = (Button) view.findViewById(R.id.google);
         gSignup.setOnClickListener(this);
         twittersignup= (Button) view.findViewById(R.id.twitter);
@@ -208,6 +210,8 @@ public class SignUp extends Fragment implements View.OnClickListener{
         fbSignup = (Button) view.findViewById(R.id.facebook_normal);
         fbSignup.setOnClickListener(this);
         mSpinner = (EditText) view.findViewById(R.id.spinner);
+
+
 
         /*//Fill spinner
         String[] arraySpinner=new String[] {
@@ -346,7 +350,143 @@ public class SignUp extends Fragment implements View.OnClickListener{
                 }
             break;
             case R.id.noAction: {
-                Toast.makeText(getContext(),"Login Call will come here",Toast.LENGTH_SHORT).show();
+                LayoutInflater linf = LayoutInflater.from(getContext());
+                final View inflator = linf.inflate(R.layout.login_dialog, null);
+                AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                // Get the layout inflater
+                final LayoutInflater inflater = getActivity().getLayoutInflater();
+
+                // Inflate and set the layout for the dialog
+                // Pass null as the parent view because its going in the dialog layout
+                builder.setView(inflater.inflate(R.layout.login_dialog, null))
+                        // Add action buttons
+                        .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                Dialog f = (Dialog) dialog;
+                                TextView uName=(TextView)f.findViewById(R.id.username);
+                                TextView pwd=(TextView)f.findViewById(R.id.password);
+                                String usernameoremail=uName.getText().toString();
+                                String pass=pwd.getText().toString();
+                                String urlStr="http://rssapi.psweb.in/everapi.asmx/ValidateLogin?EmailorMobile="+usernameoremail+"&Password="+pass;
+                                URL url=null;
+                                try{
+                                    url = new URL(urlStr);
+                                    URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                                    url = uri.toURL();
+                                }
+                                catch(Exception e){}
+                                final String urlRequest = url.toString()+"";
+                                final ProgressDialog progressdlg;
+                                progressdlg = new ProgressDialog(getContext());
+                                progressdlg.setMessage("Connecting to server...");
+                                progressdlg.setTitle("Authentication");
+                                progressdlg.setCancelable(false);
+                                progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                progressdlg.setIndeterminate(true);
+                                progressdlg.show();
+                                if(isValidEmail(usernameoremail)||isValidNumber(usernameoremail)) {
+                                    new AsyncTask<Void, Integer, String>() {
+                                        int ExceptionCode = 0;
+                                        String JsoupResopnse = "";
+
+                                        @Override
+                                        protected void onProgressUpdate(Integer... text) {
+                                            if (text[0] == 2)
+                                                progressdlg.setMessage("Connecting to server...");
+                                            if (text[0] == 3)
+                                                progressdlg.setMessage("Authenticating");
+                                        }
+
+                                        @Override
+                                        protected String doInBackground(Void... params) {
+                                            try {
+                                                publishProgress(3);
+                                                JsoupResopnse = Jsoup.connect(urlRequest).timeout(Initilization.timeout - 5).ignoreContentType(true).execute().body();
+                                                int iIndex = JsoupResopnse.indexOf("\">") + 2;
+                                                int eIndex = JsoupResopnse.indexOf("</");
+                                                char jChar[] = JsoupResopnse.toCharArray();
+                                                if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex)
+                                                    JsoupResopnse = JsoupResopnse.copyValueOf(jChar, iIndex, (eIndex - iIndex));
+                                            } catch (IOException e) {
+                                                if (e instanceof SocketTimeoutException) {
+                                                    ExceptionCode = 1;
+                                                    return null;
+                                                }
+                                                if (e instanceof HttpStatusException) {
+                                                    ExceptionCode = 2;
+                                                    return null;
+                                                }
+                                            } finally {
+                                            }
+                                            return null;
+                                        }
+
+                                        @Override
+                                        protected void onPostExecute(String link) {
+                                            int JsoupResp = -99;
+                                            try {
+                                                JsoupResp = Integer.valueOf(JsoupResopnse);
+                                            } catch (NumberFormatException e) {
+
+                                            }
+                                            if (ExceptionCode == 1)
+                                                Toast.makeText(getContext(), "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
+                                            else if (ExceptionCode == 2)
+                                                Toast.makeText(getContext(), "Some server related issue occurred..please try again later", Toast.LENGTH_SHORT).show();
+                                            else if (JsoupResopnse.isEmpty())
+                                                Toast.makeText(getContext(), "Something went wrong..sorry", Toast.LENGTH_SHORT).show();
+                                            progressdlg.dismiss();
+
+                                            if (JsoupResopnse.compareTo("<int xmlns=\"http://tempuri.org/\">1</int>") == 0 || JsoupResp > 0) {
+                                                SharedPreferences.Editor editor = sharedpreferences.edit();
+                                                editor.putBoolean(Main.LOGGEDIN, true);
+                                                editor.putBoolean(Main.ISREGISTRED, true);
+
+                                                editor.apply();
+                                                ProgressDialog progressdlg = new ProgressDialog(getContext());
+                                                progressdlg.setMessage("Restarting Application");
+                                                progressdlg.setTitle("Login done,Please Wait...");
+                                                progressdlg.setCancelable(false);
+                                                progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                                progressdlg.setIndeterminate(true);
+                                                progressdlg.show();
+
+                                                new CountDownTimer(3000, 1000) {
+
+                                                    public void onTick(long millisUntilFinished) {
+                                                    }
+
+                                                    public void onFinish() {
+                                                        Intent i = getContext().getPackageManager().getLaunchIntentForPackage( getContext().getPackageName() );
+                                                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                        startActivity(i);
+                                                        /*Intent mStartActivity = new Intent(getActivity(), Initilization.class);
+                                                        int mPendingIntentId = 123456;
+                                                        PendingIntent mPendingIntent = PendingIntent.getActivity(getActivity(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+                                                        AlarmManager mgr = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+                                                        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+                                                        System.exit(0);*/
+                                                    }
+                                                }.start();
+                                            } else if (JsoupResopnse.compareTo("<int xmlns=\"http://tempuri.org/\">0</int>") == 0 || JsoupResp == 0) {
+                                                Toast.makeText(getContext(),"Email/Number and password combination does not match",Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    }.execute();
+                                }else {
+                                    Toast.makeText(getContext(),"Entered Email or Mobile number is not valid",Toast.LENGTH_LONG).show();
+                                    progressdlg.dismiss();
+                                }
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                return;
+                            }
+                        });
+                builder.show();
             }
             break;
             case R.id.facebook_normal: {

@@ -1,6 +1,8 @@
 package com.evernews.evernews;
 
-import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,8 +11,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.CountDownTimer;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,15 +23,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.share.model.ShareLinkContent;
-import com.facebook.share.widget.ShareDialog;
-
 import java.util.List;
 
 public class Settings extends AppCompatActivity {
     TextView newsChannel, newsOrientationType,newsOrientation, newsFont, newsSupport, newsReview, newsRecomend, newsPolicy, newsTerms, newsCredits, newsWeb, newsVersion;
     //private static Activity context;
-    RelativeLayout orientationListiner;
+    RelativeLayout orientationListiner,logoutlistiner;
     Context context;
     private static SharedPreferences sharedpreferences;
     @Override
@@ -81,6 +79,7 @@ public class Settings extends AppCompatActivity {
         }else {
             newsOrientationType.setText("Automatic");
         }
+
 
         orientationListiner=(RelativeLayout)findViewById(R.id.orientation_listiner);
         orientationListiner.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +138,46 @@ public class Settings extends AppCompatActivity {
                 builderSingle.show();
             }
         });
+
+
+
+        logoutlistiner=(RelativeLayout)findViewById(R.id.logout_lisetiner);
+        logoutlistiner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                if(sharedpreferences.getBoolean(Main.ISREGISTRED,false) && sharedpreferences.getBoolean(Main.LOGGEDIN,false)) {
+                    editor.putBoolean(Main.ISREGISTRED, false);
+                    editor.putBoolean(Main.LOGGEDIN, false);
+                    editor.apply();
+                    //Toast.makeText(context, "You were logged out application will now restart", Toast.LENGTH_SHORT).show();
+                    ProgressDialog progressdlg = new ProgressDialog(context);
+                    progressdlg.setMessage("Restarting Application");
+                    progressdlg.setTitle("Log out successful,Please Wait...");
+                    progressdlg.setCancelable(false);
+                    progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progressdlg.setIndeterminate(true);
+                    progressdlg.show();
+
+                    new CountDownTimer(3000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+                        }
+
+                        public void onFinish() {
+                            Intent i = context.getPackageManager().getLaunchIntentForPackage( context.getPackageName() );
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(i);
+                        }
+                    }.start();
+                }
+                else{
+                    Toast.makeText(context, "You are not logged in to EverNews", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
         newsSupport= (TextView) findViewById(R.id.newsSupport);
         newsSupport.setOnClickListener(new View.OnClickListener() {
             @Override

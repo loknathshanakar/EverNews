@@ -78,6 +78,24 @@
                 android:layout_margin="5sp"
                 android:layout_height="1dp"
                 android:background="@color/accent" />
+            <RelativeLayout
+                android:id="@+id/logout_lisetiner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/Logout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10sp"
+                    android:paddingLeft="20sp"
+                    android:textSize="15sp"
+                    android:text="Logout of EverNews"/>
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_margin="5sp"
+                android:layout_height="1dp"
+                android:background="@color/accent" />
 
             <TextView
                 android:id="@+id/newsGen"
@@ -251,7 +269,7 @@
                     android:layout_margin="10sp"
                     android:paddingLeft="20sp"
                     android:textSize="15sp"
-                    android:text="2.0"/>
+                    android:text="0.0317"/>
             </LinearLayout>
         </LinearLayout>
 
