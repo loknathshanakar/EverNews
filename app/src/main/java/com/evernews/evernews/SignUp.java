@@ -308,9 +308,7 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                 int JsoupResp=-99;
                                 try{
                                     JsoupResp=Integer.valueOf(JsoupResopnse);
-                                }catch (NumberFormatException e){
-
-                                }
+                                }catch (NumberFormatException e){}
                                 if (!JsoupResopnse.isEmpty() &&  JsoupResp > 0) {
                                     //Store all user data into shared prefrence
                                     SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -443,8 +441,9 @@ public class SignUp extends Fragment implements View.OnClickListener{
                                                 SharedPreferences.Editor editor = sharedpreferences.edit();
                                                 editor.putBoolean(Main.LOGGEDIN, true);
                                                 editor.putBoolean(Main.ISREGISTRED, true);
-
                                                 editor.apply();
+
+
                                                 ProgressDialog progressdlg = new ProgressDialog(getContext());
                                                 progressdlg.setMessage("Restarting Application");
                                                 progressdlg.setTitle("Login done,Please Wait...");

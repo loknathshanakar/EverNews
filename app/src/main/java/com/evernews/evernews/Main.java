@@ -25,6 +25,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -70,7 +71,7 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+    public static SectionsPagerAdapter mSectionsPagerAdapter;
     public static String catListArray[][]=new String[10000][7];
     public static boolean validCategory=false;
     /**
@@ -293,7 +294,6 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         getSupportActionBar().setTitle("");
         context=this;
 
-
         Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
         {
             @Override
@@ -445,7 +445,16 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                                                             Initilization.androidId = android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
                                                             String xmlUrl = "http://rssapi.psweb.in/everapi.asmx/RemoveNewsTAB?RSSID="+RSSUID.replace(" ","")+"&AndroidId="+Initilization.androidId;
                                                             JsoupResopnse= Jsoup.connect(xmlUrl).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
-                                                            if(!JsoupResopnse.contains("<int xmlns=\"http://tempuri.org/\">1</int>")){
+                                                            int iIndex = JsoupResopnse.indexOf("\">") + 2;
+                                                            int eIndex = JsoupResopnse.indexOf("</");
+                                                            char jChar[] = JsoupResopnse.toCharArray();
+                                                            if (iIndex >= 0 && eIndex >= 0 && eIndex > iIndex)
+                                                                JsoupResopnse = JsoupResopnse.copyValueOf(jChar, iIndex, (eIndex - iIndex));
+                                                            int JsoupResp=-99;
+                                                            try{
+                                                                JsoupResp=Integer.valueOf(JsoupResopnse);
+                                                            }catch (NumberFormatException e){}
+                                                            if(JsoupResp<=0){
                                                                 ExceptionCode=2;//Add failure but not connection
                                                             }
                                                         }
@@ -457,16 +466,28 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                                                     @Override
                                                     protected void onPostExecute(String link) {
                                                         progressdlg.dismiss();
+                                                        progress.setVisibility(View.GONE);
                                                         if(ExceptionCode==0) {
                                                             SharedPreferences.Editor editor = sharedpreferences.edit();
                                                             editor.putBoolean(Main.NEWCHANNELADDED, true);
                                                             editor.commit();
                                                             Snackbar snackbar = Snackbar.make(v, "News removed successfully...", Snackbar.LENGTH_LONG);
+                                                            progress.setVisibility(View.GONE);
                                                             snackbar.show();
+                                                            new CountDownTimer(1000, 1000) {
+
+                                                                public void onTick(long millisUntilFinished) {
+                                                                }
+
+                                                                public void onFinish() {
+                                                                    recreate();
+                                                                }
+                                                            }.start();
                                                         }
                                                         else{
                                                             Snackbar snackbar = Snackbar.make(v, "Sorry news could not be removed...", Snackbar.LENGTH_LONG);
                                                             snackbar.show();
+                                                            progress.setVisibility(View.GONE);
                                                         }
                                                     }
                                                 }.execute();
@@ -666,30 +687,20 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             }
             if (content != null) {
                 String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
-                //Log.d("response", result);
-                //after getting the response we have to parse it
                 parseResults(result);
-                //Toast.makeText(getApplicationContext(), "Refreshing done,Application will now restart...", Toast.LENGTH_SHORT).show();
-
-                ProgressDialog progressdlg = new ProgressDialog(context);
-                progressdlg.setMessage("Restarting Application");
-                progressdlg.setTitle("Refreshing data done,Please Wait...");
-                progressdlg.setCancelable(false);
-                progressdlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressdlg.setIndeterminate(true);
-                progressdlg.show();
-
                 new CountDownTimer(3000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
                     }
 
                     public void onFinish() {
-                        Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+                        /*Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(i);
+                        startActivity(i);*/
+
                     }
                 }.start();
+                recreate();
                 progress.setVisibility(View.GONE);
                 super.onPostExecute(aVoid);
             }
@@ -791,13 +802,11 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
                 Initilization.getAddOnListRSSID.add(cuDispOrder,Initilization.resultArray[i][Initilization.RSSUrlId]);
                 Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder==0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder== 0){
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
                 Initilization.getAddOnListRSSID.add(Initilization.resultArray[i][Initilization.RSSUrlId]);
                 Initilization.addOnListTOCompare.add(Initilization.resultArray[i][Initilization.CategoryId]);
             }
-            //categories[cuDispOrder][1]=Initilization.resultArray[i][Initilization.Category];
-            //categories[cuDispOrder][0]=Initilization.resultArray[i][Initilization.DisplayOrder];
             Initilization.resultArrayLength=i;
         }
 
@@ -807,34 +816,9 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
         Initilization.addOnList.add(3, "YouView");
         Initilization.getAddOnListRSSID.add(2,"NULL");
         Initilization.getAddOnListRSSID.add(3,"NULL");
+        Initilization.getAddOnListRSSID.removeAll(Arrays.asList(null, ""));
         Initilization.addOnList.removeAll(Arrays.asList(null, ""));
         Initilization.addOnListTOCompare.clear();
-        /*for(int i=0;i<Initilization.addOnList.size();){
-            if(Initilization.addOnList.get(i).length()<2) {
-                Initilization.addOnList.remove(i);
-                Initilization.getAddOnListRSSID.remove(i);
-                i--;
-            }
-            i++;
-        }
-        Initilization.addOnListTOCompare.clear();
-        for(int i=0;i<1000;i++) {
-            if(categories[i][0].isEmpty())
-                continue;
-            for(int j=0;j<100;j++){
-                if(Initilization.newsCategories[j][0].isEmpty() &&(i-1)>=0){        //cat id can never be 0
-                    Initilization.newsCategories[j][0]=categories[i][0];
-                    Initilization.newsCategories[j][1]=categories[i][1];
-                    break;
-                }
-            }
-        }
-        for(int i=0;i<100;i++) {
-            if (Initilization.newsCategories[i][0].isEmpty()) {        //cat id can never be 0
-                continue;
-            } else
-                Initilization.newsCategoryLength++;
-        }*/
     }
 
     class GetCategoryList extends AsyncTask<Void,Void,Void>
@@ -877,11 +861,8 @@ public class Main extends AppCompatActivity implements SignUp.OnFragmentInteract
             if(content!=null)
             {
                 String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;",">").replaceAll("&amp;","&");
-               // Log.d("response", result);
-                //after getting the response we have to parse it
                 parseResultsList(result);
             }
-            //progress.setVisibility(View.GONE);
             super.onPostExecute(aVoid);
         }
     }

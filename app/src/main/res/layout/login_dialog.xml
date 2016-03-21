@@ -30,4 +30,37 @@
         android:layout_marginBottom="16dp"
         android:fontFamily="sans-serif"
         android:hint="Password"/>
+
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="40sp"
+        android:id="@+id/facebook_login"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_gravity="center_horizontal"
+        android:text="Register via Facebook"
+        android:background="#3b5998"
+        android:layout_margin="5dp"
+        android:textColor="#ffffffff" />
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="40sp"
+        android:text="Register via Twitter"
+        android:id="@+id/twitter_login"
+        android:layout_gravity="center_horizontal"
+        android:background="#55ACEE"
+        android:textColor="#ffffffff"
+        android:layout_margin="5dp"
+        android:layout_below="@+id/facebook_normal" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="40sp"
+        android:text="Register via Google"
+        android:id="@+id/google_login"
+        android:layout_gravity="center_horizontal"
+        android:background="#D64534"
+        android:textColor="#ffffffff"
+        android:layout_margin="5dp"
+        android:layout_below="@+id/twitter" />
 </LinearLayout>

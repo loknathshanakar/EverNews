@@ -10,6 +10,7 @@ public class ItemObject {
     private String categoryID;
     private String fullText;
     private String newsURL;
+
     public ItemObject(String newsImage, String newsTitle, String newsName,String newsID,String categoryID,String fullText,String newsURL) {
         this.newsImage = newsImage;
         this.newsTitle = newsTitle;

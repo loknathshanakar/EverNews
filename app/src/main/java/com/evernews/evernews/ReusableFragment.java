@@ -12,8 +12,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,9 +47,12 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ReusableFragment extends Fragment {
+    private SwipeRefreshLayout refreshLayout;
+    private static GridView gridView;
     private static final String TYPE_KEY = "type";
     private static final int REQUESTCODE = 1900;
     private static final String TAB_NAME = "tab_name";
@@ -83,8 +88,18 @@ public class ReusableFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        final GridView gridView = (GridView)rootView.findViewById(R.id.gridview);
+        gridView = (GridView)rootView.findViewById(R.id.gridview);
+
         context=getContext();
+        refreshLayout=(SwipeRefreshLayout)rootView.findViewById(R.id.swipe_view);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Do work to refresh the list here.
+               // Toast.makeText(context,"Refresh in background has started...",Toast.LENGTH_LONG).show();
+                new GetNewsTask().execute();
+            }
+        });
         //btn=(Button)getActivity().findViewById(R.id.loadmore);
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             gridView.setNumColumns(4);
@@ -383,37 +398,180 @@ public class ReusableFragment extends Fragment {
         return items;
     }
 
-    private List<ItemObject> getMoreNews(String incategoryId,String lastNewsId){
-        List<ItemObject> items = new ArrayList<>();
-        int i= getArguments().getInt(TYPE_KEY);
-        if(i==1 || i==2)
-            return items;
-        if(i>=0) {
-            for(int j=0;j<=Initilization.resultArrayLength;j++){
-                int categoryId=Integer.parseInt(Initilization.resultArray[j][Initilization.CategoryId]);
-                if(categoryId>1)
-                    categoryId= categoryId+2;
-                if((categoryId-1)==i) {
-                    String par1 = Initilization.resultArray[j][Initilization.NewsImage];
-                    String par2 = Initilization.resultArray[j][Initilization.NewsTitle];
-                    String par3 = Initilization.resultArray[j][Initilization.RSSTitle];     //RSSTitle
-                    String par4 = Initilization.resultArray[j][Initilization.NewsId];
-                    String par5 = Initilization.resultArray[j][Initilization.RSSURL];
-                    String FullText = Initilization.resultArray[j][Initilization.FullText];
-                    String NewsUrl = Initilization.resultArray[j][Initilization.NewsUrl];
-                    items.add(new ItemObject(par1, par2, par3, par4,par5,FullText,NewsUrl));
-                    refrenceCounter++;
-                    //Need to implement a filter to prevent re adding of data
-                    for(int k=0;k<itemCollection.size();k++){
-                        if(itemCollection.get(k).getNewsID().compareTo(par4)==0){
-                            items.remove(items.size()-1);
-                        }
-                    }
+    class GetNewsTask extends AsyncTask<Void,Void,Void>
+    {
+        String content;
+        int ExceptionCode=0;
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            try
+            {
+                Initilization.androidId = android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+                String fetchLink="http://rssapi.psweb.in/everapi.asmx/LoadXMLDefaultNews?AndroidId="+Initilization.androidId;//Over ride but should be Main.androidId
+                content= Jsoup.connect(fetchLink).ignoreContentType(true).timeout(Initilization.timeout).execute().body();
+            }
+            catch(Exception e)
+            {
+                if(e instanceof SocketTimeoutException) {
+                    ExceptionCode=1;
+                    return null;
                 }
+                if(e instanceof HttpStatusException) {
+                    ExceptionCode=2;
+                    return null;
+                }
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            refreshLayout.setRefreshing(false);
+            refreshLayout.destroyDrawingCache();
+            refreshLayout.clearAnimation();
+            if (ExceptionCode > 0) {
+                if (ExceptionCode == 1)
+                    Toast.makeText(context, "Please check your internet connection and try again", Toast.LENGTH_SHORT).show();
+                if (ExceptionCode == 2)
+                    Toast.makeText(context, "Some server related issue occurred..please try again later", Toast.LENGTH_SHORT).show();
+            }
+            if (content != null) {
+                String result = content.toString().replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
+                parseResultsMAIN(result);
+                getActivity().recreate();
+                /*List<ItemObject> allItems = getDefaultNews(getArguments().getInt(TYPE_KEY));
+                //if(itemCollection.get(0).getnewsName().isEmpty())
+                itemCollection.addAll(allItems);
+                int postionToMaintain= gridView.getFirstVisiblePosition();
+                CustomAdapter customAdapter = new CustomAdapter(getActivity(), itemCollection);
+                gridView.setAdapter(customAdapter);
+                gridView.setSelection(postionToMaintain);*/
+                super.onPostExecute(aVoid);
             }
         }
-        return items;
     }
+
+    public void parseResultsMAIN(String response)
+    {
+        ContentValues values = new ContentValues();
+        String path=Initilization.DB_PATH+Initilization.DB_NAME;
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(path, null, 0);
+        String categories[][]=new String[1000][2];
+        for(int i=0;i<100;i++){
+            Initilization.newsCategories[i][0]="";
+            Initilization.newsCategories[i][1]="";
+        }
+        for(int i=0;i<1000;i++){
+            categories[i][0]="";
+            categories[i][1]="";
+        }
+        Initilization.addOnList.clear();
+        Initilization.addOnListTOCompare.clear();
+        Initilization.getAddOnListRSSID.clear();
+        for (int i = 0; i < 20; i++) {
+            Initilization.addOnList.add("");
+            Initilization.addOnListTOCompare.add("");
+            Initilization.getAddOnListRSSID.add("");
+        }
+
+        String currentNewsCategory="";
+        Initilization.newsCategories[1][1]="EverYou";
+        Initilization.newsCategories[2][1]="YouView";
+        Initilization.newsCategories[1][0]="999";
+        Initilization.newsCategories[2][0]="999";
+        XMLDOMParser parser = new XMLDOMParser();
+        InputStream stream = new ByteArrayInputStream(response.getBytes());
+        Document doc = parser.getDocument(stream);
+        NodeList nodeList = doc.getElementsByTagName("Table");
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Element e = (Element) nodeList.item(i);
+            Initilization.resultArray[i][Initilization.CategoryId] = (parser.getValue(e, "CategoryId"));
+            values.put(Initilization.CATEGORYID, Initilization.resultArray[i][Initilization.CategoryId]);             //lets add data to database
+
+            Initilization.resultArray[i][Initilization.Category] = (parser.getValue(e, "Category"));
+            values.put(Initilization.CATEGORYNAME, Initilization.resultArray[i][Initilization.Category]);
+
+            Initilization.resultArray[i][Initilization.DisplayOrder] = (parser.getValue(e, "DisplayOrder"));
+            values.put(Initilization.DISPLAYORDER, Initilization.resultArray[i][Initilization.DisplayOrder]);
+
+            Initilization.resultArray[i][Initilization.RSSTitle] = (parser.getValue(e, "RSSTitle"));
+            values.put(Initilization.RSSTITLE, Initilization.resultArray[i][Initilization.RSSTitle]);
+
+            Initilization.resultArray[i][Initilization.RSSURL] = (parser.getValue(e, "RSSURL"));
+            values.put(Initilization.RSSURL_DB, Initilization.resultArray[i][Initilization.RSSURL]);
+
+            Initilization.resultArray[i][Initilization.RSSUrlId] = (parser.getValue(e, "RSSUrlId"));
+            values.put(Initilization.RSSURLID, Initilization.resultArray[i][Initilization.RSSUrlId]);
+
+            Initilization.resultArray[i][Initilization.NewsId] = (parser.getValue(e, "NewsId"));
+            values.put(Initilization.NEWSID, Initilization.resultArray[i][Initilization.NewsId]);
+
+            Initilization.resultArray[i][Initilization.NewsTitle] = (parser.getValue(e, "NewsTitle"));
+            values.put(Initilization.NEWSTITLE, Initilization.resultArray[i][Initilization.NewsTitle]);
+
+            Initilization.resultArray[i][Initilization.Summary] = (parser.getValue(e, "Summary"));
+            values.put(Initilization.SUMMARY, Initilization.resultArray[i][Initilization.Summary]);
+
+            Initilization.resultArray[i][Initilization.NewsImage] = (parser.getValue(e, "NewsImage"));
+            values.put(Initilization.NEWSIMAGE, Initilization.resultArray[i][Initilization.NewsImage]);
+
+            Initilization.resultArray[i][Initilization.NewsDate] = (parser.getValue(e, "NewsDate"));
+            values.put(Initilization.NEWSDATE, Initilization.resultArray[i][Initilization.NewsDate]);
+
+            Initilization.resultArray[i][Initilization.NewsDisplayOrder] = (parser.getValue(e, "NewsDisplayOrder"));
+            values.put(Initilization.NEWSDISPLAYORDER, Initilization.resultArray[i][Initilization.NewsDisplayOrder]);
+
+            Initilization.resultArray[i][Initilization.CategoryorNews] = (parser.getValue(e, "CategoryorNews"));
+            values.put(Initilization.CATEGORYORNEWS, Initilization.resultArray[i][Initilization.CategoryorNews]);
+
+            Initilization.resultArray[i][Initilization.FullText] = (parser.getValue(e, "FullText"));
+            values.put(Initilization.FULLTEXT, Initilization.resultArray[i][Initilization.FullText]);
+
+            Initilization.resultArray[i][Initilization.NewsUrl] = (parser.getValue(e, "NewsURL"));
+            values.put(Initilization.NEWSURL, Initilization.resultArray[i][Initilization.NewsUrl]);
+
+            currentNewsCategory=Initilization.resultArray[i][Initilization.DisplayOrder];
+            db.insert(Initilization.TABLE_NAME, null, values);
+
+            int cuDispOrder=0;
+            try {
+                cuDispOrder = Integer.parseInt(currentNewsCategory);
+            }catch (Exception ee){}
+            if(cuDispOrder==0){
+            }
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
+                Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(cuDispOrder,Initilization.resultArray[i][Initilization.RSSUrlId]);
+                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+            }
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder==0){
+                Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(Initilization.resultArray[i][Initilization.RSSUrlId]);
+                Initilization.addOnListTOCompare.add(Initilization.resultArray[i][Initilization.CategoryId]);
+            }
+            Initilization.resultArrayLength=i;
+        }
+
+        db.close(); // Closing database connection
+
+        Initilization.addOnList.add(2, "EverYou");
+        Initilization.addOnList.add(3, "YouView");
+        Initilization.getAddOnListRSSID.add(2,"NULL");
+        Initilization.getAddOnListRSSID.add(3,"NULL");
+        Initilization.getAddOnListRSSID.removeAll(Arrays.asList(null, ""));
+        Initilization.addOnList.removeAll(Arrays.asList(null, ""));
+        Initilization.addOnListTOCompare.clear();
+    }
+
 
 
     //Non reuse lol

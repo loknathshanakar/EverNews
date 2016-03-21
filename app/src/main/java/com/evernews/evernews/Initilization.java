@@ -285,11 +285,13 @@ public class Initilization extends AppCompatActivity {
             }
             if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
                 Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(cuDispOrder,Initilization.resultArray[i][Initilization.RSSUrlId]);
                 Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder==0){
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
-                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(Initilization.resultArray[i][Initilization.RSSUrlId]);
+                Initilization.addOnListTOCompare.add(Initilization.resultArray[i][Initilization.CategoryId]);
             }
             Initilization.resultArrayLength=i;
         }
@@ -297,26 +299,12 @@ public class Initilization extends AppCompatActivity {
         db.close(); // Closing database connection
 
         Initilization.addOnList.add(2, "EverYou");
-        Initilization.addOnList.add(3,"YouView");
+        Initilization.addOnList.add(3, "YouView");
+        Initilization.getAddOnListRSSID.add(2, "NULL");
+        Initilization.getAddOnListRSSID.add(3,"NULL");
+        Initilization.getAddOnListRSSID.removeAll(Arrays.asList(null, ""));
         Initilization.addOnList.removeAll(Arrays.asList(null, ""));
         Initilization.addOnListTOCompare.clear();
-        /*for(int i=0;i<1000;i++) {
-            if(categories[i][0].isEmpty())
-                continue;
-            for(int j=0;j<100;j++){
-                if(Initilization.newsCategories[j][0].isEmpty() &&(i-1)>=0){        //cat id can never be 0
-                    Initilization.newsCategories[j][0]=categories[i][0];
-                    Initilization.newsCategories[j][1]=categories[i][1];
-                    break;
-                }
-            }
-        }
-        for(int i=0;i<100;i++) {
-            if (Initilization.newsCategories[i][0].isEmpty()) {        //cat id can never be 0
-                continue;
-            } else
-                Initilization.newsCategoryLength++;
-        }*/
     }
 
 
@@ -412,11 +400,13 @@ public class Initilization extends AppCompatActivity {
             }
             if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder!=0){
                 Initilization.addOnList.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(cuDispOrder,Initilization.resultArray[i][Initilization.RSSUrlId]);
                 Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
             }
-            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.Category]) && cuDispOrder==0){
+            if(!Initilization.addOnListTOCompare.contains(Initilization.resultArray[i][Initilization.CategoryId]) && cuDispOrder==0){
                 Initilization.addOnList.add(Initilization.resultArray[i][Initilization.Category]);
-                Initilization.addOnListTOCompare.add(cuDispOrder,Initilization.resultArray[i][Initilization.Category]);
+                Initilization.getAddOnListRSSID.add(Initilization.resultArray[i][Initilization.RSSUrlId]);
+                Initilization.addOnListTOCompare.add(Initilization.resultArray[i][Initilization.CategoryId]);
             }
             Initilization.resultArrayLength=i;
 
@@ -428,26 +418,12 @@ public class Initilization extends AppCompatActivity {
         db.close(); // Closing database connection
 
         Initilization.addOnList.add(2, "EverYou");
-        Initilization.addOnList.add(3,"YouView");
+        Initilization.addOnList.add(3, "YouView");
+        Initilization.getAddOnListRSSID.add(2, "NULL");
+        Initilization.getAddOnListRSSID.add(3,"NULL");
+        Initilization.getAddOnListRSSID.removeAll(Arrays.asList(null, ""));
         Initilization.addOnList.removeAll(Arrays.asList(null, ""));
         Initilization.addOnListTOCompare.clear();
-        /*for(int i=0;i<1000;i++) {
-            if(categories[i][0].isEmpty())
-                continue;
-            for(int j=0;j<100;j++){
-                if(Initilization.newsCategories[j][0].isEmpty() &&(i-1)>=0){        //cat id can never be 0
-                    Initilization.newsCategories[j][0]=categories[i][0];
-                    Initilization.newsCategories[j][1]=categories[i][1];
-                    break;
-                }
-            }
-        }
-        for(int i=0;i<100;i++) {
-            if (Initilization.newsCategories[i][0].isEmpty()) {        //cat id can never be 0
-                continue;
-            } else
-                Initilization.newsCategoryLength++;
-        }*/
     }
 }
 
