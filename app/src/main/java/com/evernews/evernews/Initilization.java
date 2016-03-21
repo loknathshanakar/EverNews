@@ -210,9 +210,11 @@ public class Initilization extends AppCompatActivity {
         }
         Initilization.addOnList.clear();
         Initilization.addOnListTOCompare.clear();
+        Initilization.getAddOnListRSSID.clear();
         for (int i = 0; i < 20; i++) {
             Initilization.addOnList.add("");
             Initilization.addOnListTOCompare.add("");
+            Initilization.getAddOnListRSSID.add("");
         }
 
         int index=0;
@@ -328,6 +330,8 @@ public class Initilization extends AppCompatActivity {
             categories[i][1]="";
         }
         Initilization.addOnList.clear();
+        Initilization.addOnListTOCompare.clear();
+        Initilization.getAddOnListRSSID.clear();
         for (int i = 0; i < 20; i++) {
             Initilization.addOnList.add("");
             Initilization.addOnListTOCompare.add("");
@@ -419,7 +423,7 @@ public class Initilization extends AppCompatActivity {
 
         Initilization.addOnList.add(2, "EverYou");
         Initilization.addOnList.add(3, "YouView");
-        Initilization.getAddOnListRSSID.add(2, "NULL");
+        Initilization.getAddOnListRSSID.add(2,"NULL");
         Initilization.getAddOnListRSSID.add(3,"NULL");
         Initilization.getAddOnListRSSID.removeAll(Arrays.asList(null, ""));
         Initilization.addOnList.removeAll(Arrays.asList(null, ""));

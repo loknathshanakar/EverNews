@@ -35,6 +35,7 @@ import com.facebook.share.widget.ShareDialog;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -584,7 +585,147 @@ public class ReusableFragment extends Fragment {
         InputStream stream = new ByteArrayInputStream(response.getBytes());
         Document doc = parser.getDocument(stream);
         NodeList nodeList;
-        try{
+        //Neeed to use XML prasing using JSOUP
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse(response, "", org.jsoup.parser.Parser.xmlParser());
+        for(int i=0;i<15;i++){
+            if(i==Initilization.CategoryId) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("CategoryId")) {
+                    values.put(Initilization.CATEGORYID,e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.Category) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("Category")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.DisplayOrder) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("DisplayOrder")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.RSSTitle) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("RSSTitle")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.RSSURL) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("RSSURL")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.RSSUrlId) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("RSSUrlId")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.NewsId ) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("NewsId")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.NewsTitle ) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("NewsTitle")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.Summary) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("Summary")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.NewsImage) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("NewsImage")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.NewsDate) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("NewsDate")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.NewsDisplayOrder) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("NewsDisplayOrder")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.CategoryorNews) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("CategoryorNews")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.FullText) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("FullText")) {
+                    values.put(Initilization.CATEGORYID, e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+            if(i==Initilization.NewsUrl) {
+                for (org.jsoup.nodes.Element e : jsoupDoc.select("NewsUrl")) {
+                    values.put(Initilization.CATEGORYID,e.text());
+                    db.insert(Initilization.TABLE_NAME, null, values);
+                    values.clear();
+                }
+            }
+
+
+
+            String NewsImage = (parser.getValue(e, "NewsImage"));
+            //values.put(Initilization.NEWSIMAGE, NewsImage);             //lets add data to database
+
+            String NewsTitle = (parser.getValue(e, "NewsTitle"));
+            //values.put(Initilization.NEWSTITLE, NewsTitle);
+
+            String RSSTitle = (parser.getValue(e, "RSSTitle"));
+            //values.put(Initilization.RSSTITLE, RSSTitle);
+
+            String NewsId = (parser.getValue(e, "NewsId"));
+            //values.put(Initilization.NEWSID, NewsId);
+
+            String CategoryId = (parser.getValue(e, "CategoryId"));
+            //values.put(Initilization.CATEGORYID, CategoryId);
+
+            String FullText = (parser.getValue(e, "FullText"));
+            //values.put(Initilization.FULLTEXT, FullText);
+
+            String NewsUrl = (parser.getValue(e, "NewsURL"));
+            //values.put(Initilization.NEWSURL, NewsUrl);
+
+
+
+            asyncitems.add(new ItemObject(NewsImage, NewsTitle, RSSTitle, NewsId,CategoryId,FullText,NewsUrl));
+            for(int k=0;k<itemCollection.size();k++){
+                if(itemCollection.get(k).getNewsID().compareTo(NewsId)==0){
+                    asyncitems.remove(asyncitems.size()-1);
+                }
+        }
+        /*try{
             nodeList = doc.getElementsByTagName("Table");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element e = (Element) nodeList.item(i);
@@ -673,7 +814,7 @@ public class ReusableFragment extends Fragment {
             Toast.makeText(getContext(),"Exception found,news wont load",Toast.LENGTH_SHORT).show();
         }finally {
             db.close();
-        }
+        }*/
         db.close();
     }
 
